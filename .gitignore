@@ -1,0 +1,19 @@
+# Environnement Python
+.venv/
+__pycache__/
+*.py[cod]
+
+# Bases locales
+db.sqlite3
+
+# Variables sensibles
+.env
+
+# Médias et fichiers statiques générés
+media/
+staticfiles/
+
+# Outils
+.pytest_cache/
+.coverage
+htmlcov/

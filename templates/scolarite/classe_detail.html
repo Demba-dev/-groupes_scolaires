@@ -1,0 +1,81 @@
+{% extends 'base.html' %}
+
+{% block page_title %}{{ classe.nom }}{% endblock %}
+{% block title %}{{ classe.nom }}{% endblock %}
+
+{% block content %}
+<div class="d-flex flex-wrap justify-content-between align-items-start gap-2 mb-3">
+  <div>
+    <span class="badge {% if classe.cycle == 'premier' %}bg-info{% else %}bg-primary{% endif %} me-2">{{ classe.cycle_libelle }}</span>
+    <span class="badge bg-secondary">Année {{ classe.anne_scolaire.libelle }}</span>
+    <span class="badge bg-light border text-dark">Effectif : {{ classe.effectif }} / {{ classe.capacite_max }}</span>
+    {% if classe.enseignant_titulaire %}<span class="badge bg-success"><i class="bi bi-person-check me-1"></i>{{ classe.enseignant_titulaire }}</span>{% endif %}
+  </div>
+  <div class="d-flex gap-2">
+    {% if est_direction %}
+    <a href="{% url 'scolarite:classe_update' classe.pk %}" class="btn btn-outline-primary"><i class="bi bi-pencil me-1"></i>Modifier</a>
+    {% endif %}
+    <a href="{% url 'scolarite:liste_eleves_print' classe.pk %}" target="_blank" class="btn btn-outline-secondary"><i class="bi bi-printer me-1"></i>Liste des élèves</a>
+  </div>
+</div>
+
+<div class="row g-3">
+  <div class="col-lg-7">
+    <div class="card shadow-sm h-100">
+      <div class="card-header bg-white fw-semibold"><i class="bi bi-people text-primary me-2"></i>Liste des élèves</div>
+      <div class="table-responsive">
+        <table class="table table-sm table-hover mb-0">
+          <thead><tr><th>#</th><th>Matricule</th><th>Nom &amp; prénom</th><th>Sexe</th><th>Parent / Tuteur</th><th>Tél.</th></tr></thead>
+          <tbody>
+            {% for ins in inscriptions %}
+            <tr>
+              <td>{{ forloop.counter }}</td>
+              <td>{{ ins.eleve.matricule }}</td>
+              <td class="fw-semibold">{{ ins.eleve.nom_complet }}</td>
+              <td>{{ ins.eleve.get_sexe_display }}</td>
+              <td>{{ ins.eleve.tuteur|default:'—' }}</td>
+              <td>{{ ins.eleve.telephone_tuteur|default:'—' }}</td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="6" class="text-center text-muted py-4">Aucun élève inscrit.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-lg-5">
+    <div class="card shadow-sm">
+      <div class="card-header bg-white fw-semibold"><i class="bi bi-person-lines-fill text-primary me-2"></i>Enseignements de la classe</div>
+      <div class="table-responsive">
+        <table class="table table-sm table-hover mb-0">
+          <thead><tr><th>Matière</th><th>Enseignant</th><th class="text-center">Coef.</th></tr></thead>
+          <tbody>
+            {% for e in enseignements %}
+            <tr>
+              <td>{{ e.matiere.nom }}</td>
+              <td>{{ e.enseignant }}</td>
+              <td class="text-center">{{ e.coefficient_effectif }}</td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="3" class="text-center text-muted py-4">Aucune matière affectée.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="card shadow-sm mt-3">
+      <div class="card-body d-flex flex-wrap gap-2">
+        <a href="{% url 'presences:feuille' %}?classe={{ classe.pk }}" class="btn btn-sm btn-ecole"><i class="bi bi-list-check me-1"></i>Faire l'appel</a>
+        <a href="{% url 'notes:evaluations' %}?classe={{ classe.pk }}" class="btn btn-sm btn-outline-primary"><i class="bi bi-clipboard2-check me-1"></i>Évaluations</a>
+        <a href="{% url 'notes:bulletins' %}?classe={{ classe.pk }}" class="btn btn-sm btn-outline-secondary"><i class="bi bi-file-earmark-text me-1"></i>Bulletins</a>
+        {% if est_direction %}
+        <a href="{% url 'finance:reste_a_payer' %}?classe={{ classe.pk }}" class="btn btn-sm btn-outline-warning"><i class="bi bi-wallet2 me-1"></i>Reste à payer</a>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

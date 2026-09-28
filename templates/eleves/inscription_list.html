@@ -1,0 +1,370 @@
+{% extends 'base.html' %}
+
+{% block page_title %}Inscriptions{% endblock %}
+{% block title %}Inscriptions{% endblock %}
+
+{% block extra_css %}
+<style>
+  /* ---- En-tête de page (identique eleve_list) ---- */
+  .page-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+
+  .page-head .page-count {
+    font-size: 13px;
+    color: var(--gs-text-muted);
+    font-weight: 500;
+  }
+
+  .page-head .page-count strong {
+    color: var(--gs-text)
+  }
+
+  /* ---- Filtres ---- */
+  .filters-card {
+    background: #fff;
+    border: 1px solid var(--gs-border);
+    border-radius: var(--gs-radius);
+    padding: 16px 18px;
+    box-shadow: var(--gs-shadow-sm);
+    margin-bottom: 20px;
+  }
+
+  .filters-card .filter-search {
+    flex: 1 1 240px;
+    max-width: 340px
+  }
+
+  .filters-card .filter-select {
+    flex: 0 1 200px
+  }
+
+  .filters-card .btn-icon {
+    width: 42px;
+    height: 42px;
+    padding: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .filters-card .reset-link {
+    font-size: 12.5px;
+    color: var(--gs-text-muted);
+    text-decoration: none;
+    font-weight: 500;
+  }
+
+  .filters-card .reset-link:hover {
+    color: var(--gs-primary-600)
+  }
+
+  /* ---- Tableau ---- */
+  .table-inscriptions thead th {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    background: #f8fafc;
+    color: var(--gs-text-muted);
+    font-size: 11.5px;
+    text-transform: uppercase;
+    letter-spacing: .06em;
+    padding: 12px 14px;
+    border-bottom: 1px solid var(--gs-border);
+    white-space: nowrap;
+  }
+
+  .table-inscriptions tbody td {
+    padding: 12px 14px;
+    font-size: 13.5px;
+    border-bottom: 1px solid #f1f5f9;
+    vertical-align: middle;
+  }
+
+  .table-inscriptions tbody tr:hover {
+    background: #f8fafc
+  }
+
+  .table-inscriptions .nom-link {
+    color: var(--gs-text);
+    font-weight: 600;
+    text-decoration: none;
+  }
+
+  .table-inscriptions .nom-link:hover {
+    color: var(--gs-primary-600)
+  }
+
+  .matricule {
+    font-family: ui-monospace, 'SFMono-Regular', Menlo, monospace;
+    font-size: 12.5px;
+    color: var(--gs-text-muted);
+    background: #f1f5f9;
+    padding: 3px 8px;
+    border-radius: 6px;
+    white-space: nowrap;
+  }
+
+  .classe-cell {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .classe-cell .classe-nom {
+    font-weight: 600;
+    color: var(--gs-text)
+  }
+
+  /* ---- Badges ---- */
+  .status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11.5px;
+    font-weight: 600;
+    padding: 4px 10px;
+    border-radius: 999px;
+    white-space: nowrap;
+  }
+
+  .status-badge::before {
+    content: "";
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: currentColor;
+  }
+
+  .status-actif {
+    background: #dcfce7;
+    color: #166534
+  }
+
+  .status-inactive {
+    background: #f1f5f9;
+    color: #475569
+  }
+
+  .badge-cycle {
+    display: inline-flex;
+    align-items: center;
+    font-size: 10.5px;
+    font-weight: 700;
+    padding: 3px 8px;
+    border-radius: 6px;
+    letter-spacing: .03em;
+    text-transform: uppercase;
+  }
+
+  .badge-cycle-1 {
+    background: #e0e7ff;
+    color: #3730a3
+  }
+
+  .badge-cycle-2 {
+    background: #dbeafe;
+    color: #1e40af
+  }
+
+  /* ---- Actions ---- */
+  .actions-cell {
+    display: inline-flex;
+    gap: 4px;
+    justify-content: flex-end
+  }
+
+  .actions-cell .btn {
+    width: 34px;
+    height: 34px;
+    padding: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+  }
+
+  .actions-cell .btn i {
+    font-size: 14px
+  }
+
+  /* ---- État vide ---- */
+  .empty-state {
+    padding: 64px 24px;
+    text-align: center;
+    color: var(--gs-text-muted);
+  }
+
+  .empty-state i {
+    font-size: 44px;
+    color: #cbd5e1;
+    display: block;
+    margin-bottom: 12px
+  }
+
+  .empty-state h6 {
+    color: var(--gs-text);
+    font-weight: 600;
+    margin-bottom: 4px
+  }
+
+  .empty-state p {
+    font-size: 13px;
+    margin: 0
+  }
+
+  /* ---- Responsive ---- */
+  @media (max-width:767.98px) {
+
+    .filters-card .filter-search,
+    .filters-card .filter-select {
+      flex: 1 1 100%;
+      max-width: none
+    }
+
+    .filters-card .btn-icon {
+      width: 100%
+    }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+
+{# ---------- En-tête ---------- #}
+<div class="page-head">
+  <div class="page-count">
+    {% if object_list %}
+    <strong>{{ object_list|length }}</strong> inscription{{ object_list|length|pluralize }} affichée{{
+    object_list|length|pluralize }}
+    {% else %}
+    Aucun résultat
+    {% endif %}
+  </div>
+  <a href="{% url 'eleves:inscription_create' %}" class="btn btn-primary">
+    <i class="bi bi-plus-lg me-1"></i>Nouvelle inscription
+  </a>
+</div>
+
+{# ---------- Filtres ---------- #}
+<form class="filters-card" method="get">
+  <div class="d-flex flex-wrap align-items-center gap-2">
+    <div class="position-relative filter-search">
+      <i class="bi bi-search position-absolute"
+        style="left:12px;top:50%;transform:translateY(-50%);color:var(--gs-text-muted);font-size:13px;pointer-events:none"></i>
+      <input type="text" name="q" value="{{ request.GET.q }}" class="form-control ps-5"
+        placeholder="Matricule, nom, prénom…">
+    </div>
+
+    <select name="annee" class="form-select filter-select" onchange="this.form.submit()">
+      <option value="">Toutes les années</option>
+      {% for a in annees %}
+      <option value="{{ a.id }}" {% if request.GET.annee == a.id|stringformat:'s' %}selected{% endif %}>{{ a.libelle }}
+      </option>
+      {% endfor %}
+    </select>
+
+    <select name="classe" class="form-select filter-select" onchange="this.form.submit()">
+      <option value="">Toutes les classes</option>
+      {% for c in classes %}
+      <option value="{{ c.id }}" {% if request.GET.classe == c.id|stringformat:'s' %}selected{% endif %}>{{ c.nom }}
+      </option>
+      {% endfor %}
+    </select>
+
+    <button class="btn btn-primary btn-icon" title="Rechercher" aria-label="Rechercher">
+      <i class="bi bi-search"></i>
+    </button>
+
+    {% if request.GET.q or request.GET.annee or request.GET.classe %}
+    <a href="?" class="reset-link ms-1">
+      <i class="bi bi-x-circle me-1"></i>Réinitialiser
+    </a>
+    {% endif %}
+  </div>
+</form>
+
+{# ---------- Tableau ---------- #}
+<div class="card">
+  <div class="table-responsive">
+    <table class="table table-hover align-middle mb-0 table-inscriptions">
+      <thead>
+        <tr>
+          <th>Élève</th>
+          <th style="width:140px">Matricule</th>
+          <th style="width:110px">Année</th>
+          <th>Classe</th>
+          <th style="width:150px">Type</th>
+          <th style="width:120px">Statut</th>
+          <th class="text-end" style="width:140px">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for ins in object_list %}
+        <tr>
+          <td>
+            <a href="{% url 'eleves:eleve_detail' ins.eleve.pk %}" class="nom-link">
+              {{ ins.eleve.nom_complet }}
+            </a>
+          </td>
+          <td><span class="matricule">{{ ins.eleve.matricule }}</span></td>
+          <td>{{ ins.annee_scolaire.libelle }}</td>
+          <td>
+            <span class="classe-cell">
+              <span class="classe-nom">{{ ins.classe.nom }}</span>
+              {% if ins.classe.cycle == 'premier' %}
+              <span class="badge-cycle badge-cycle-1">1<sup>er</sup></span>
+              {% else %}
+              <span class="badge-cycle badge-cycle-2">2<sup>ème</sup></span>
+              {% endif %}
+            </span>
+          </td>
+          <td>{{ ins.get_type_inscription_display }}</td>
+          <td>
+            {% if ins.statut == 'active' %}
+            <span class="status-badge status-actif">Active</span>
+            {% else %}
+            <span class="status-badge status-inactive">Clôturée</span>
+            {% endif %}
+          </td>
+          <td class="text-end">
+            <div class="actions-cell">
+              {% if ins.statut == 'active' %}
+              <a href="{% url 'eleves:inscription_cloturer' ins.pk %}" class="btn btn-outline-secondary"
+                title="Clôturer l'inscription">
+                <i class="bi bi-x-circle"></i>
+              </a>
+              {% endif %}
+              <a href="{% url 'eleves:inscription_update' ins.pk %}" class="btn btn-outline-primary" title="Modifier">
+                <i class="bi bi-pencil"></i>
+              </a>
+              <a href="{% url 'eleves:inscription_delete' ins.pk %}" class="btn btn-outline-danger" title="Supprimer">
+                <i class="bi bi-trash3"></i>
+              </a>
+            </div>
+          </td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="7">
+            <div class="empty-state">
+              <i class="bi bi-person-plus"></i>
+              <h6>Aucune inscription trouvée</h6>
+              <p>Aucune inscription ne correspond à votre recherche.</p>
+            </div>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+{% include 'includes/pagination.html' %}
+{% endblock %}

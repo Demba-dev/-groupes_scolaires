@@ -1,0 +1,64 @@
+{% extends 'base.html' %}
+
+{% block page_title %}Évaluations{% endblock %}
+{% block title %}Évaluations{% endblock %}
+
+{% block content %}
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+  <form class="d-flex flex-wrap gap-2" method="get">
+    <select name="annee" class="form-select w-auto" onchange="this.form.submit()">
+      <option value="">Toutes les années</option>
+      {% for a in annees %}
+      <option value="{{ a.id }}" {% if request.GET.annee == a.id|stringformat:'s' %}selected{% endif %}>{{ a.libelle }}</option>
+      {% endfor %}
+    </select>
+    <select name="classe" class="form-select w-auto" onchange="this.form.submit()">
+      <option value="">Toutes les classes</option>
+      {% for c in classes %}
+      <option value="{{ c.id }}" {% if request.GET.classe == c.id|stringformat:'s' %}selected{% endif %}>{{ c.nom }}</option>
+      {% endfor %}
+    </select>
+    <select name="periode" class="form-select w-auto" onchange="this.form.submit()">
+      <option value="">Toutes les périodes</option>
+      {% for value, label in periodes %}
+      <option value="{{ value }}" {% if request.GET.periode == value %}selected{% endif %}>{{ label }}</option>
+      {% endfor %}
+    </select>
+    <button class="btn btn-outline-secondary"><i class="bi bi-funnel"></i></button>
+  </form>
+  <a href="{% url 'notes:evaluation_create' %}" class="btn btn-ecole"><i class="bi bi-plus-lg me-1"></i>Nouvelle évaluation</a>
+</div>
+
+<div class="card shadow-sm">
+  <div class="table-responsive">
+    <table class="table table-hover align-middle mb-0">
+      <thead>
+        <tr><th>Titre</th><th>Classe</th><th>Matière</th><th>Type</th><th>Période</th><th>Date</th><th class="text-center">Barème</th><th class="text-center">Notes</th><th class="text-end">Actions</th></tr>
+      </thead>
+      <tbody>
+        {% for ev in object_list %}
+        <tr>
+          <td class="fw-semibold"><a href="{% url 'notes:evaluation_detail' ev.pk %}">{{ ev.titre }}</a></td>
+          <td>{{ ev.classe.nom }}</td>
+          <td>{{ ev.matiere.nom }}</td>
+          <td><span class="badge bg-light border text-dark">{{ ev.get_type_evaluation_display }}</span></td>
+          <td>{{ ev.get_periode_display }}</td>
+          <td>{{ ev.date|date:'d/m/Y'|default:'—' }}</td>
+          <td class="text-center">/{{ ev.bareme }}</td>
+          <td class="text-center">{{ ev.eleves_notes }}</td>
+          <td class="text-end text-nowrap">
+            <a href="{% url 'notes:saisie_notes' ev.pk %}" class="btn btn-sm btn-ecole"><i class="bi bi-pencil-square me-1"></i>Notes</a>
+            <a href="{% url 'notes:evaluation_detail' ev.pk %}" class="btn btn-sm btn-outline-secondary"><i class="bi bi-eye"></i></a>
+            <a href="{% url 'notes:evaluation_update' ev.pk %}" class="btn btn-sm btn-outline-primary"><i class="bi bi-pencil"></i></a>
+            <a href="{% url 'notes:evaluation_delete' ev.pk %}" class="btn btn-sm btn-outline-danger"><i class="bi bi-trash3"></i></a>
+          </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="9" class="text-center text-muted py-5">Aucune évaluation.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% include 'includes/pagination.html' %}
+{% endblock %}

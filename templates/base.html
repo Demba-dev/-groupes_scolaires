@@ -1,0 +1,714 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}Gestion Scolaire{% endblock %} · {{ NOM_ECOLE }}</title>
+
+  <!-- Polices -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  <link rel="stylesheet" href="{% static 'css/app.css' %}">
+
+  <!-- ============ DESIGN SYSTEM GLOBAL ============ -->
+  <style>
+    :root {
+      --gs-primary: #1e3a8a;
+      --gs-primary-600: #2563eb;
+      --gs-primary-700: #1d4ed8;
+      --gs-accent: #0ea5e9;
+      --gs-bg: #f5f7fb;
+      --gs-surface: #ffffff;
+      --gs-border: #e5e9f2;
+      --gs-text: #0f172a;
+      --gs-text-muted: #64748b;
+      --gs-success: #16a34a;
+      --gs-warning: #d97706;
+      --gs-danger: #dc2626;
+      --gs-radius: 12px;
+      --gs-radius-sm: 8px;
+      --gs-shadow-sm: 0 1px 2px rgba(15, 23, 42, .04), 0 1px 3px rgba(15, 23, 42, .06);
+      --gs-shadow: 0 4px 12px rgba(15, 23, 42, .06), 0 2px 4px rgba(15, 23, 42, .04);
+      --gs-shadow-lg: 0 12px 32px rgba(15, 23, 42, .12);
+      --gs-sidebar-w: 260px;
+      --gs-topbar-h: 64px;
+    }
+
+    * {
+      box-sizing: border-box
+    }
+
+    html,
+    body {
+      height: 100%
+    }
+
+    body {
+      font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+      background: var(--gs-bg);
+      color: var(--gs-text);
+      font-size: 14.5px;
+      line-height: 1.55;
+      -webkit-font-smoothing: antialiased;
+      margin: 0;
+    }
+
+    /* ---------- Layout global ---------- */
+    .sidebar {
+      width: var(--gs-sidebar-w);
+      background: linear-gradient(180deg, #0f1f4d 0%, #16295e 60%, #1a2f6b 100%);
+      color: #cbd5e1;
+      position: fixed;
+      inset: 0 auto 0 0;
+      display: flex;
+      flex-direction: column;
+      overflow-y: auto;
+      z-index: 1040;
+      transition: transform .28s cubic-bezier(.4, 0, .2, 1);
+      border-right: 1px solid rgba(255, 255, 255, .05);
+    }
+
+    .sidebar::-webkit-scrollbar {
+      width: 6px
+    }
+
+    .sidebar::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, .12);
+      border-radius: 3px
+    }
+
+    .sidebar .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 20px 20px 18px;
+      text-decoration: none;
+      color: #fff;
+      border-bottom: 1px solid rgba(255, 255, 255, .07);
+      margin-bottom: 8px;
+    }
+
+    .sidebar .logo {
+      width: 40px;
+      height: 40px;
+      background: linear-gradient(135deg, var(--gs-accent), var(--gs-primary-600));
+      border-radius: 10px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 15px;
+      letter-spacing: .5px;
+      color: #fff;
+      box-shadow: 0 6px 16px rgba(37, 99, 235, .45);
+      flex-shrink: 0;
+    }
+
+    .sidebar .brand-title {
+      font-weight: 700;
+      font-size: 14.5px;
+      line-height: 1.2
+    }
+
+    .sidebar .brand-sub {
+      font-size: 11.5px;
+      color: #94a3b8;
+      font-weight: 500;
+      margin-top: 2px
+    }
+
+    .sidebar .menu-label {
+      font-size: 10.5px;
+      text-transform: uppercase;
+      letter-spacing: .12em;
+      font-weight: 700;
+      color: #64748b;
+      padding: 18px 20px 8px;
+    }
+
+    .sidebar .nav-link {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      color: #cbd5e1;
+      font-size: 13.5px;
+      font-weight: 500;
+      padding: 10px 16px;
+      margin: 2px 10px;
+      border-radius: var(--gs-radius-sm);
+      text-decoration: none;
+      transition: all .15s ease;
+      position: relative;
+    }
+
+    .sidebar .nav-link i {
+      font-size: 16px;
+      width: 20px;
+      text-align: center;
+      color: #94a3b8;
+      transition: color .15s ease;
+    }
+
+    .sidebar .nav-link:hover {
+      background: rgba(255, 255, 255, .06);
+      color: #fff;
+    }
+
+    .sidebar .nav-link:hover i {
+      color: #fff
+    }
+
+    .sidebar .nav-link.active {
+      background: linear-gradient(90deg, rgba(37, 99, 235, .35), rgba(37, 99, 235, .05));
+      color: #fff;
+      font-weight: 600;
+      box-shadow: inset 0 0 0 1px rgba(96, 165, 250, .25);
+    }
+
+    .sidebar .nav-link.active::before {
+      content: "";
+      position: absolute;
+      left: -10px;
+      top: 8px;
+      bottom: 8px;
+      width: 3px;
+      background: linear-gradient(180deg, #60a5fa, #2563eb);
+      border-radius: 0 3px 3px 0;
+    }
+
+    .sidebar .nav-link.active i {
+      color: #60a5fa
+    }
+
+    /* ---------- Overlay mobile ---------- */
+    .sidebar-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, .5);
+      backdrop-filter: blur(2px);
+      z-index: 1035;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .25s ease;
+    }
+
+    .sidebar-overlay.show {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    /* ---------- Content wrapper ---------- */
+    .content-wrapper {
+      margin-left: var(--gs-sidebar-w);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ---------- Topbar ---------- */
+    .topbar {
+      height: var(--gs-topbar-h);
+      background: var(--gs-surface);
+      border-bottom: 1px solid var(--gs-border);
+      display: flex;
+      align-items: center;
+      padding: 0 24px;
+      position: sticky;
+      top: 0;
+      z-index: 1020;
+      box-shadow: var(--gs-shadow-sm);
+    }
+
+    .page-title {
+      font-weight: 700;
+      font-size: 16px;
+      color: var(--gs-text);
+      margin: 0;
+      letter-spacing: -.01em;
+    }
+
+    .annual-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: linear-gradient(135deg, #eff6ff, #dbeafe);
+      color: var(--gs-primary);
+      border: 1px solid #bfdbfe;
+      font-size: 12.5px;
+      font-weight: 600;
+      padding: 6px 12px;
+      border-radius: 999px;
+      white-space: nowrap;
+    }
+
+    /* Bouton utilisateur */
+    .topbar .dropdown-toggle {
+      background: #fff;
+      border: 1px solid var(--gs-border);
+      color: var(--gs-text);
+      font-weight: 500;
+      font-size: 13.5px;
+      padding: 7px 14px;
+      border-radius: var(--gs-radius-sm);
+      transition: all .15s;
+    }
+
+    .topbar .dropdown-toggle:hover {
+      background: #f8fafc;
+      border-color: #cbd5e1;
+    }
+
+    .topbar .dropdown-menu {
+      border: 1px solid var(--gs-border);
+      border-radius: var(--gs-radius);
+      box-shadow: var(--gs-shadow-lg);
+      padding: 6px;
+      min-width: 220px;
+    }
+
+    .topbar .dropdown-item {
+      border-radius: var(--gs-radius-sm);
+      font-size: 13.5px;
+      padding: 8px 12px;
+      font-weight: 500;
+      transition: background .15s;
+    }
+
+    .topbar .dropdown-item:hover {
+      background: #f1f5f9
+    }
+
+    .topbar .dropdown-item.text-danger:hover {
+      background: #fef2f2
+    }
+
+    /* Bouton burger */
+    #btnSidebar {
+      background: #fff;
+      border: 1px solid var(--gs-border);
+      color: var(--gs-text);
+      width: 40px;
+      height: 40px;
+      border-radius: var(--gs-radius-sm);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0;
+      transition: all .15s;
+    }
+
+    #btnSidebar:hover {
+      background: #f1f5f9;
+      border-color: #cbd5e1
+    }
+
+    /* ---------- Main ---------- */
+    main {
+      flex: 1;
+      padding: 24px;
+    }
+
+    /* ---------- Alertes ---------- */
+    .alert-message {
+      border: none;
+      border-radius: var(--gs-radius);
+      box-shadow: var(--gs-shadow-sm);
+      font-size: 13.5px;
+      font-weight: 500;
+      padding: 14px 18px;
+      border-left: 4px solid currentColor;
+    }
+
+    .alert-message.alert-success {
+      background: #f0fdf4;
+      color: #166534
+    }
+
+    .alert-message.alert-error,
+    .alert-message.alert-danger {
+      background: #fef2f2;
+      color: #991b1b
+    }
+
+    .alert-message.alert-warning {
+      background: #fffbeb;
+      color: #92400e
+    }
+
+    .alert-message.alert-info {
+      background: #eff6ff;
+      color: #1e40af
+    }
+
+    /* ---------- Footer ---------- */
+    .content-wrapper footer {
+      background: var(--gs-surface);
+      border-top: 1px solid var(--gs-border);
+      padding: 16px 24px;
+      font-size: 12.5px;
+      color: var(--gs-text-muted);
+      margin-top: auto;
+    }
+
+    /* ---------- Boutons globaux ---------- */
+    .btn {
+      font-weight: 600;
+      font-size: 13.5px;
+      border-radius: var(--gs-radius-sm);
+      padding: 8px 16px;
+      transition: all .15s ease;
+    }
+
+    .btn-primary {
+      background: var(--gs-primary-600);
+      border-color: var(--gs-primary-600);
+      box-shadow: 0 1px 2px rgba(37, 99, 235, .2);
+    }
+
+    .btn-primary:hover {
+      background: var(--gs-primary-700);
+      border-color: var(--gs-primary-700)
+    }
+
+    .btn-outline-primary {
+      color: var(--gs-primary-600);
+      border-color: #bfdbfe
+    }
+
+    .btn-outline-primary:hover {
+      background: var(--gs-primary-600);
+      border-color: var(--gs-primary-600)
+    }
+
+    /* ---------- Cartes ---------- */
+    .card {
+      border: 1px solid var(--gs-border);
+      border-radius: var(--gs-radius);
+      box-shadow: var(--gs-shadow-sm);
+      background: var(--gs-surface);
+    }
+
+    .card-header {
+      background: transparent;
+      border-bottom: 1px solid var(--gs-border);
+      font-weight: 600;
+      padding: 14px 18px;
+    }
+
+    /* ---------- Tableaux ---------- */
+    .table {
+      font-size: 13.5px;
+      margin-bottom: 0;
+    }
+
+    .table thead th {
+      background: #f8fafc;
+      color: var(--gs-text-muted);
+      font-weight: 600;
+      font-size: 11.5px;
+      text-transform: uppercase;
+      letter-spacing: .06em;
+      border-bottom: 1px solid var(--gs-border);
+      padding: 12px 14px;
+      white-space: nowrap;
+    }
+
+    .table tbody td {
+      padding: 12px 14px;
+      border-bottom: 1px solid #f1f5f9;
+      vertical-align: middle;
+    }
+
+    .table tbody tr:hover {
+      background: #f8fafc
+    }
+
+    .table-responsive {
+      border-radius: var(--gs-radius);
+      border: 1px solid var(--gs-border);
+      overflow: hidden;
+    }
+
+    /* ---------- Formulaires ---------- */
+    .form-label {
+      font-weight: 600;
+      font-size: 12.5px;
+      color: var(--gs-text);
+      margin-bottom: 6px
+    }
+
+    .form-control,
+    .form-select {
+      border-radius: var(--gs-radius-sm);
+      border: 1px solid var(--gs-border);
+      font-size: 13.5px;
+      padding: 9px 12px;
+      transition: all .15s;
+    }
+
+    .form-control:focus,
+    .form-select:focus {
+      border-color: var(--gs-primary-600);
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, .12);
+    }
+
+    /* ---------- Badges ---------- */
+    .badge {
+      font-weight: 600;
+      font-size: 11.5px;
+      padding: 4px 10px;
+      border-radius: 999px;
+    }
+
+    /* ---------- Responsive ---------- */
+    @media (max-width:991.98px) {
+      .sidebar {
+        transform: translateX(-100%);
+        box-shadow: var(--gs-shadow-lg);
+      }
+
+      .sidebar.show {
+        transform: translateX(0)
+      }
+
+      .content-wrapper {
+        margin-left: 0
+      }
+
+      .topbar {
+        padding: 0 16px
+      }
+
+      main {
+        padding: 16px
+      }
+    }
+
+    @media (max-width:575.98px) {
+      .page-title {
+        font-size: 14.5px
+      }
+
+      .annual-badge {
+        display: none
+      }
+
+      .topbar .dropdown-toggle span {
+        display: none
+      }
+
+      main {
+        padding: 12px
+      }
+
+      .content-wrapper footer {
+        padding: 14px 16px
+      }
+    }
+  </style>
+  {% block extra_css %}{% endblock %}
+</head>
+
+<body>
+
+  {# ---------- Sidebar ---------- #}
+  <aside class="sidebar" id="sidebar">
+    <a href="{% url 'core:dashboard' %}" class="brand">
+      <span class="logo">GS</span>
+      <span>
+        <span class="brand-title d-block">Groupe Scolaire</span>
+        <span class="brand-sub d-block">École fondamentale</span>
+      </span>
+    </a>
+
+    <nav class="flex-column">
+      <div class="menu-label">Accueil</div>
+      <a href="{% url 'core:dashboard' %}"
+        class="nav-link {% if request.resolver_match.namespace == 'core' %}active{% endif %}">
+        <i class="bi bi-grid-1x2"></i> Tableau de bord
+      </a>
+
+      {% if est_direction %}
+      <div class="menu-label">Scolarité</div>
+      <a href="{% url 'scolarite:annees' %}"
+        class="nav-link {% if request.resolver_match.view_name == 'scolarite:annees' %}active{% endif %}">
+        <i class="bi bi-calendar3"></i> Années scolaires
+      </a>
+      <a href="{% url 'scolarite:classes' %}"
+        class="nav-link {% if request.resolver_match.view_name == 'scolarite:classes' %}active{% endif %}">
+        <i class="bi bi-journal-bookmark"></i> Classes
+      </a>
+      <a href="{% url 'scolarite:matieres' %}"
+        class="nav-link {% if request.resolver_match.view_name == 'scolarite:matieres' %}active{% endif %}">
+        <i class="bi bi-book"></i> Matières
+      </a>
+      <a href="{% url 'scolarite:enseignements' %}"
+        class="nav-link {% if request.resolver_match.view_name == 'scolarite:enseignements' %}active{% endif %}">
+        <i class="bi bi-person-lines-fill"></i> Affectations
+      </a>
+
+      <div class="menu-label">Élèves</div>
+      <a href="{% url 'eleves:liste' %}"
+        class="nav-link {% if request.resolver_match.app_name == 'eleves' and request.resolver_match.view_name != 'eleves:inscriptions' and request.resolver_match.view_name != 'eleves:tuteurs' %}active{% endif %}">
+        <i class="bi bi-people"></i> Élèves
+      </a>
+      <a href="{% url 'eleves:inscriptions' %}"
+        class="nav-link {% if request.resolver_match.view_name == 'eleves:inscriptions' %}active{% endif %}">
+        <i class="bi bi-person-plus"></i> Inscriptions
+      </a>
+      <a href="{% url 'eleves:tuteurs' %}"
+        class="nav-link {% if request.resolver_match.view_name == 'eleves:tuteurs' %}active{% endif %}">
+        <i class="bi bi-person-vcard"></i> Parents / Tuteurs
+      </a>
+
+      <div class="menu-label">Enseignants</div>
+      <a href="{% url 'enseignants:liste' %}"
+        class="nav-link {% if request.resolver_match.app_name == 'enseignants' %}active{% endif %}">
+        <i class="bi bi-mortarboard"></i> Enseignants
+      </a>
+      {% endif %}
+
+      <div class="menu-label">Notes &amp; résultats</div>
+      <a href="{% url 'notes:evaluations' %}"
+        class="nav-link {% if request.resolver_match.app_name == 'notes' and 'evaluation' in request.resolver_match.view_name %}active{% endif %}">
+        <i class="bi bi-clipboard2-check"></i> Évaluations
+      </a>
+      <a href="{% url 'notes:bulletins' %}"
+        class="nav-link {% if request.resolver_match.view_name == 'notes:bulletins' or request.resolver_match.view_name == 'notes:bulletin_detail' %}active{% endif %}">
+        <i class="bi bi-file-earmark-text"></i> Bulletins
+      </a>
+
+      <div class="menu-label">Présences</div>
+      <a href="{% url 'presences:feuille' %}"
+        class="nav-link {% if request.resolver_match.view_name == 'presences:feuille' %}active{% endif %}">
+        <i class="bi bi-list-check"></i> Feuille d'appel
+      </a>
+      <a href="{% url 'presences:historique' %}"
+        class="nav-link {% if request.resolver_match.view_name == 'presences:historique' %}active{% endif %}">
+        <i class="bi bi-calendar2-week"></i> Historique
+      </a>
+
+      {% if est_direction %}
+      <div class="menu-label">Finance</div>
+      <a href="{% url 'finance:frais' %}"
+        class="nav-link {% if request.resolver_match.view_name == 'finance:frais' %}active{% endif %}">
+        <i class="bi bi-receipt"></i> Frais scolaires
+      </a>
+      <a href="{% url 'finance:paiements' %}"
+        class="nav-link {% if request.resolver_match.view_name == 'finance:paiements' %}active{% endif %}">
+        <i class="bi bi-cash-coin"></i> Paiements
+      </a>
+      <a href="{% url 'finance:reste_a_payer' %}"
+        class="nav-link {% if request.resolver_match.view_name == 'finance:reste_a_payer' %}active{% endif %}">
+        <i class="bi bi-wallet2"></i> Reste à payer
+      </a>
+
+      <div class="menu-label">Administration</div>
+      <a href="{% url 'accounts:utilisateurs' %}"
+        class="nav-link {% if request.resolver_match.app_name == 'accounts' %}active{% endif %}">
+        <i class="bi bi-shield-lock"></i> Utilisateurs
+      </a>
+      <a href="/admin/" class="nav-link">
+        <i class="bi bi-tools"></i> Administration Django
+      </a>
+      {% endif %}
+    </nav>
+  </aside>
+
+  {# ---------- Overlay mobile ---------- #}
+  <div class="sidebar-overlay d-lg-none" id="sidebarOverlay"></div>
+
+  {# ---------- Contenu ---------- #}
+  <div class="content-wrapper">
+    <header class="topbar">
+      <button class="btn d-lg-none me-2" type="button" id="btnSidebar" aria-label="Ouvrir le menu">
+        <i class="bi bi-list"></i>
+      </button>
+      <h1 class="page-title">{% block page_title %}{% endblock %}</h1>
+      <div class="ms-auto d-flex align-items-center gap-2">
+        {% if annee_scolaire_courante %}
+        <span class="annual-badge"><i class="bi bi-calendar3"></i>{{ annee_scolaire_courante.libelle }}</span>
+        {% endif %}
+        <div class="dropdown">
+          <button class="btn dropdown-toggle d-flex align-items-center gap-2" data-bs-toggle="dropdown"
+            aria-expanded="false">
+            <i class="bi bi-person-circle"></i><span>
+              {{request.user.get_full_name|default:request.user.username}}</span>
+          </button>
+          <ul class="dropdown-menu dropdown-menu-end">
+            <li><span class="dropdown-item-text small text-muted d-block px-3 py-2">
+                <i class="bi bi-tag me-1"></i>{{ request.user.get_role_display }}
+              </span></li>
+            <li>
+              <hr class="dropdown-divider">
+            </li>
+            <li>
+              <form method="post" action="{% url 'accounts:logout' %}" class="m-0">
+                {% csrf_token %}
+                <button type="submit" class="dropdown-item text-danger">
+                  <i class="bi bi-box-arrow-right me-2"></i>Se déconnecter
+                </button>
+              </form>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </header>
+
+    <main class="flex-grow-1">
+      {% if messages %}
+      {% for message in messages %}
+      <div class="alert alert-{{ message.tags|default:'info' }} alert-message alert-dismissible fade show" role="alert">
+        {{ message }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Fermer"></button>
+      </div>
+      {% endfor %}
+      {% endif %}
+
+      {% block content %}{% endblock %}
+    </main>
+
+    <footer class="text-center small">
+      © {% now "Y" %} {{ NOM_ECOLE }} — Application de gestion scolaire · Mali
+    </footer>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    (function () {
+      const sidebar = document.getElementById('sidebar');
+      const overlay = document.getElementById('sidebarOverlay');
+      const btn = document.getElementById('btnSidebar');
+
+      function openSidebar() {
+        sidebar.classList.add('show');
+        if (overlay) overlay.classList.add('show');
+      }
+      function closeSidebar() {
+        sidebar.classList.remove('show');
+        if (overlay) overlay.classList.remove('show');
+      }
+
+      if (btn) btn.addEventListener('click', () => {
+        sidebar.classList.contains('show') ? closeSidebar() : openSidebar();
+      });
+      if (overlay) overlay.addEventListener('click', closeSidebar);
+
+      // Fermer au clic sur un lien en mobile
+      sidebar.querySelectorAll('.nav-link').forEach(link => {
+        link.addEventListener('click', () => {
+          if (window.innerWidth < 992) closeSidebar();
+        });
+      });
+    })();
+  </script>
+  {% block extra_js %}{% endblock %}
+</body>
+
+</html>

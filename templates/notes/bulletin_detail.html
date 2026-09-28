@@ -1,0 +1,88 @@
+{% extends 'base.html' %}
+
+{% block page_title %}Bulletin — {{ bulletin.eleve.nom_complet }}{% endblock %}
+{% block title %}Bulletin{% endblock %}
+
+{% block content %}
+<div class="no-print d-flex justify-content-between align-items-center mb-3">
+  <a href="{{ request.META.HTTP_REFERER|default:'/notes/bulletins/' }}" class="btn btn-outline-secondary"><i class="bi bi-arrow-left me-1"></i>Retour</a>
+  <button class="btn btn-ecole" onclick="window.print()"><i class="bi bi-printer me-1"></i>Imprimer le bulletin</button>
+</div>
+
+<div class="card shadow-sm">
+  <div class="card-body p-4 p-md-5">
+    <div class="text-center border-bottom pb-3 mb-4">
+      <h4 class="fw-bold mb-1">{{ NOM_ECOLE }}</h4>
+      <div class="small">République du Mali · École fondamentale</div>
+      <h5 class="mt-3 mb-0 text-uppercase fw-bold" style="letter-spacing:.05em;">Bulletin scolaire</h5>
+      <span class="badge bg-primary">{{ bulletin.get_periode_display }} — Année {{ bulletin.annee_scolaire.libelle }}</span>
+    </div>
+
+    <div class="row g-3 mb-4 small">
+      <div class="col-sm-6 col-md-3"><strong>Nom &amp; prénom :</strong><br>{{ bulletin.eleve.nom_complet }}</div>
+      <div class="col-sm-6 col-md-2"><strong>Matricule :</strong><br>{{ bulletin.eleve.matricule }}</div>
+      <div class="col-sm-6 col-md-2"><strong>Classe :</strong><br>{{ bulletin.classe.nom }}</div>
+      <div class="col-sm-6 col-md-3"><strong>Cycle :</strong><br>{{ bulletin.classe.cycle_libelle }}</div>
+      <div class="col-sm-6 col-md-2"><strong>Sexe :</strong><br>{{ bulletin.eleve.get_sexe_display }}</div>
+    </div>
+
+    <table class="table table-bordered text-center align-middle mb-3">
+      <thead class="table-light">
+        <tr>
+          <th class="text-start">Matière</th>
+          <th style="width:80px;">Coef.</th>
+          <th style="width:220px;">Notes ({{ note_base|default:20 }})</th>
+          <th style="width:120px;">Moyenne / {{ note_base|default:20 }}</th>
+          <th style="width:120px;">Points</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for ligne in lignes %}
+        <tr>
+          <td class="text-start">{{ ligne.matiere }}</td>
+          <td>{{ ligne.coefficient }}</td>
+          <td>
+            {% for n in ligne.notes %}<span class="badge bg-light border text-dark me-1">{{ n }}</span>{% empty %}—{% endfor %}
+          </td>
+          <td><strong>{{ ligne.moyenne|default:'—' }}</strong></td>
+          <td>{{ ligne.points|default:'—' }}</td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="5" class="text-center text-muted py-3">Aucune note pour cette période.</td></tr>
+        {% endfor %}
+      </tbody>
+      <tfoot>
+        <tr class="table-active">
+          <td colspan="3" class="text-end fw-semibold">MOYENNE GÉNÉRALE</td>
+          <td colspan="2" class="fw-bold {% if moyenne and moyenne >= 10 %}text-success{% else %}text-danger{% endif %}">{{ moyenne|default:'—' }}</td>
+        </tr>
+        <tr>
+          <td colspan="3" class="text-end fw-semibold">RANG</td>
+          <td colspan="2">{{ bulletin.rang|default:'—' }}{% if bulletin.effectif_classe %} sur {{ bulletin.effectif_classe }}{% endif %}</td>
+        </tr>
+        <tr>
+          <td colspan="3" class="text-end fw-semibold">DÉCISION (fin d'année)</td>
+          <td colspan="2">{{ bulletin.get_decision_display|default:'—' }}</td>
+        </tr>
+      </tfoot>
+    </table>
+
+    <div class="small">{{ bulletin.appreciation|default:'Appréciation : à compléter.' }}</div>
+
+    <div class="row mt-5 pt-4 border-top small">
+      <div class="col-4 text-center">
+        <div class="mb-5">L'enseignant(e) titulaire</div>
+        <div class="border-top">Signature</div>
+      </div>
+      <div class="col-4 text-center">
+        <div class="mb-5">Le/La parent(e) ou tuteur(tutrice)</div>
+        <div class="border-top">Signature</div>
+      </div>
+      <div class="col-4 text-center">
+        <div class="mb-5">Le Directeur / La Directrice</div>
+        <div class="border-top">Signature &amp; cachet</div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

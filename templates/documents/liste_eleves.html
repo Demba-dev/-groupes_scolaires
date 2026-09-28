@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+
+{% block page_title %}Liste des élèves — {{ classe.nom }}{% endblock %}
+{% block title %}Liste des élèves{% endblock %}
+
+{% block content %}
+<div class="no-print d-flex justify-content-between align-items-center mb-3">
+  <button class="btn btn-outline-secondary" onclick="history.back()"><i class="bi bi-arrow-left me-1"></i>Retour</button>
+  <button class="btn btn-ecole" onclick="window.print()"><i class="bi bi-printer me-1"></i>Imprimer</button>
+</div>
+
+<div class="card shadow-sm">
+  <div class="card-body p-4">
+    <div class="text-center border-bottom pb-3 mb-4">
+      <h4 class="fw-bold mb-1">{{ NOM_ECOLE }}</h4>
+      <div class="small">République du Mali · École fondamentale</div>
+      <h5 class="mt-2 mb-0">Liste des élèves — Classe {{ classe.nom }} · Année {{ classe.anne_scolaire.libelle }}</h5>
+      <div class="small text-muted">Titulaire : {{ classe.enseignant_titulaire|default:'—' }}</div>
+    </div>
+
+    <table class="table table-bordered table-sm align-middle">
+      <thead class="table-light">
+        <tr>
+          <th class="text-center" style="width:50px;">N°</th>
+          <th>Matricule</th>
+          <th>Nom &amp; prénom</th>
+          <th class="text-center">Sexe</th>
+          <th>Date de naissance</th>
+          <th>Parent / Tuteur</th>
+          <th>Téléphone</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for ins in inscriptions %}
+        <tr>
+          <td class="text-center">{{ forloop.counter }}</td>
+          <td>{{ ins.eleve.matricule }}</td>
+          <td class="fw-semibold">{{ ins.eleve.nom_complet }}</td>
+          <td class="text-center">{{ ins.eleve.get_sexe_display }}</td>
+          <td>{{ ins.eleve.date_naissance|date:'d/m/Y'|default:'—' }}</td>
+          <td>{{ ins.eleve.tuteur|default:'—' }}</td>
+          <td>{{ ins.eleve.telephone_tuteur|default:'—' }}</td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="7" class="text-center text-muted py-4">Aucun élève inscrit.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+    <div class="row mt-4 pt-3 border-top small text-center">
+      <div class="col-4"><div class="mb-5">L'enseignant(e) titulaire</div><div class="border-top">Signature</div></div>
+      <div class="col-4"><div class="mb-5">Le/La responsable pédagogique</div><div class="border-top">Signature &amp; cachet</div></div>
+      <div class="col-4"><div class="mb-5">Le Directeur / La Directrice</div><div class="border-top">Signature &amp; cachet</div></div>
+    </div>
+  </div>
+</div>
+{% endblock %}

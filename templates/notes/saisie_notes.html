@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+
+{% block page_title %}Saisie des notes — {{ evaluation.titre }}{% endblock %}
+{% block title %}Saisie des notes{% endblock %}
+
+{% block content %}
+<div class="card shadow-sm mb-3">
+  <div class="card-body">
+    <span class="badge bg-primary me-2">{{ evaluation.classe.nom }}</span>
+    <span class="badge bg-secondary me-2">{{ evaluation.matiere.nom }}</span>
+    <span class="badge bg-light border text-dark">Barème : /{{ evaluation.bareme }}</span>
+    <span class="text-muted small ms-2">Valides : 0 à {{ evaluation.bareme }} (une note vide efface la note existante).</span>
+  </div>
+</div>
+
+<form method="post">
+  {% csrf_token %}
+  <div class="card shadow-sm">
+    <div class="table-responsive">
+      <table class="table table-hover align-middle mb-0">
+        <thead><tr><th>#</th><th>Matricule</th><th>Élève</th><th class="text-center">Note / {{ evaluation.bareme }}</th></tr></thead>
+        <tbody>
+          {% for ligne in lignes %}
+          <tr>
+            <td>{{ forloop.counter }}</td>
+            <td>{{ ligne.eleve.matricule }}</td>
+            <td class="fw-semibold">{{ ligne.eleve.nom_complet }}</td>
+            <td class="text-center" style="max-width:160px;">
+              <input type="number" step="0.25" min="0" max="{{ evaluation.bareme }}"
+                     name="note_{{ ligne.eleve.id }}"
+                     value="{% if ligne.note %}{{ ligne.note.valeur }}{% endif %}"
+                     class="form-control text-center" placeholder="—">
+            </td>
+          </tr>
+          {% empty %}
+          <tr><td colspan="4" class="text-center text-muted py-5">Aucun élève inscrit dans cette classe.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% if lignes %}
+    <div class="card-footer bg-white d-flex gap-2">
+      <button type="submit" class="btn btn-ecole"><i class="bi bi-check-lg me-1"></i>Enregistrer les notes</button>
+      <a href="{% url 'notes:evaluation_detail' evaluation.pk %}" class="btn btn-outline-secondary">Annuler</a>
+    </div>
+    {% endif %}
+  </div>
+</form>
+{% endblock %}

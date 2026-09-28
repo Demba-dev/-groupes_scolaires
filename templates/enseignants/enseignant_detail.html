@@ -1,0 +1,67 @@
+{% extends 'base.html' %}
+
+{% block page_title %}{{ enseignant.nom_complet }}{% endblock %}
+{% block title %}{{ enseignant.nom_complet }}{% endblock %}
+
+{% block content %}
+<div class="card shadow-sm mb-3">
+  <div class="card-body d-flex flex-wrap align-items-center gap-3">
+    <div class="flex-grow-1">
+      <h2 class="h4 mb-1">{{ enseignant.nom_complet }}
+        {% if enseignant.actif %}<span class="badge bg-success align-middle">En activité</span>
+        {% else %}<span class="badge bg-secondary align-middle">Inactif</span>{% endif %}
+      </h2>
+      <div class="text-muted small">
+        Matricule <strong>{{ enseignant.matricule }}</strong> ·
+        {{ enseignant.get_sexe_display }}
+        {% if enseignant.specialite %} · {{ enseignant.specialite }}{% endif %}
+        {% if enseignant.telephone %} · <i class="bi bi-telephone"></i> {{ enseignant.telephone }}{% endif %}
+      </div>
+      {% if enseignant.user %}<span class="badge bg-success mt-2">Compte : {{ enseignant.user.username }} ({{ enseignant.user.get_role_display }})</span>{% endif %}
+    </div>
+    <a href="{% url 'enseignants:update' enseignant.pk %}" class="btn btn-outline-primary"><i class="bi bi-pencil me-1"></i>Modifier</a>
+  </div>
+</div>
+
+<div class="row g-3">
+  <div class="col-lg-6">
+    <div class="card shadow-sm h-100">
+      <div class="card-header bg-white fw-semibold"><i class="bi bi-journal-bookmark text-primary me-2"></i>Classes dont il est titulaire</div>
+      <div class="table-responsive">
+        <table class="table table-sm table-hover mb-0">
+          <thead><tr><th>Classe</th><th>Année</th><th class="text-center">Effectif</th></tr></thead>
+          <tbody>
+            {% for c in classes_dirigees %}
+            <tr>
+              <td><a href="{% url 'scolarite:classe_detail' c.pk %}">{{ c.nom }}</a></td>
+              <td>{{ c.anne_scolaire.libelle }}</td>
+              <td class="text-center">{{ c.effectif }}</td>
+            </tr>
+            {% empty %}<tr><td colspan="3" class="text-center text-muted py-4">Aucune classe dirigée.</td></tr>{% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+  <div class="col-lg-6">
+    <div class="card shadow-sm h-100">
+      <div class="card-header bg-white fw-semibold"><i class="bi bi-person-lines-fill text-primary me-2"></i>Affectations (classe / matière)</div>
+      <div class="table-responsive">
+        <table class="table table-sm table-hover mb-0">
+          <thead><tr><th>Classe</th><th>Matière</th><th class="text-center">Coef.</th><th class="text-end">Horaire</th></tr></thead>
+          <tbody>
+            {% for e in enseignements %}
+            <tr>
+              <td><a href="{% url 'scolarite:classe_detail' e.classe.pk %}">{{ e.classe.nom }}</a></td>
+              <td>{{ e.matiere.nom }}</td>
+              <td class="text-center">{{ e.coefficient_effectif }}</td>
+              <td class="text-end">{{ e.horaire_hebdomadaire|default:'—' }} h</td>
+            </tr>
+            {% empty %}<tr><td colspan="4" class="text-center text-muted py-4">Aucune affectation.</td></tr>{% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

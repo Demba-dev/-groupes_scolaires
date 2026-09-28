@@ -1,0 +1,237 @@
+:root {
+  --ecole-primary: #1e4d8c;
+  --ecole-primary-dark: #153a6b;
+  --ecole-accent: #e9b01f;
+  --ecole-sidebar-bg: #12263f;
+  --ecole-sidebar-active: #1e4d8c;
+}
+
+body {
+  background-color: #f2f5f9;
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+
+/* ---------- Layout sidebar ---------- */
+.sidebar {
+  background: var(--ecole-sidebar-bg);
+  color: #cfe0f0;
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 250px;
+  z-index: 1030;
+  overflow-y: auto;
+  padding-bottom: 2rem;
+}
+
+.sidebar .brand {
+  display: flex;
+  align-items: center;
+  gap: .65rem;
+  padding: 1rem 1.25rem;
+  color: #fff;
+  text-decoration: none;
+  border-bottom: 1px solid rgba(255,255,255,.08);
+}
+
+.sidebar .brand .logo {
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  background: var(--ecole-accent);
+  color: var(--ecole-sidebar-bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-size: 1.1rem;
+}
+
+.sidebar .brand .brand-title {
+  font-weight: 700;
+  font-size: .95rem;
+  line-height: 1.15;
+  text-transform: uppercase;
+}
+
+.sidebar .brand .brand-sub {
+  font-size: .72rem;
+  opacity: .75;
+}
+
+.sidebar .menu-label {
+  font-size: .68rem;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  color: #8aa4c0;
+  padding: 1.1rem 1.25rem .35rem;
+}
+
+.sidebar .nav-link {
+  color: #cfe0f0;
+  display: flex;
+  align-items: center;
+  gap: .7rem;
+  padding: .55rem 1.25rem;
+  font-size: .92rem;
+  border-left: 3px solid transparent;
+}
+
+.sidebar .nav-link i {
+  font-size: 1.05rem;
+  width: 20px;
+  text-align: center;
+}
+
+.sidebar .nav-link:hover {
+  background: rgba(255,255,255,.06);
+  color: #fff;
+}
+
+.sidebar .nav-link.active {
+  background: var(--ecole-sidebar-active);
+  color: #fff;
+  border-left-color: var(--ecole-accent);
+}
+
+.content-wrapper {
+  margin-left: 250px;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+@media (max-width: 991.98px) {
+  .sidebar {
+    transform: translateX(-100%);
+    transition: transform .25s ease;
+  }
+  .sidebar.show {
+    transform: translateX(0);
+  }
+  .content-wrapper {
+    margin-left: 0;
+  }
+}
+
+/* ---------- Navbar ---------- */
+.topbar {
+  background: #fff;
+  border-bottom: 1px solid #e2e8f0;
+  padding: .7rem 1.25rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.topbar .page-title {
+  font-weight: 700;
+  color: var(--ecole-primary);
+  margin: 0;
+}
+
+.annual-badge {
+  background: var(--ecole-primary);
+  color: #fff;
+  border-radius: 50rem;
+  padding: .3rem .85rem;
+  font-size: .8rem;
+  font-weight: 600;
+}
+
+/* ---------- Cartes & tableau de bord ---------- */
+.card {
+  border: 0;
+  border-radius: .75rem;
+  box-shadow: 0 1px 3px rgba(16,38,66,.08);
+}
+
+.stat-card {
+  border-radius: .75rem;
+  color: #fff;
+  padding: 1.1rem 1.25rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.stat-card .stat-icon {
+  width: 46px;
+  height: 46px;
+  border-radius: 12px;
+  background: rgba(255,255,255,.18);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25rem;
+}
+
+.stat-card .stat-value {
+  font-size: 1.7rem;
+  font-weight: 800;
+  line-height: 1.1;
+}
+
+.stat-card .stat-label {
+  font-size: .8rem;
+  opacity: .92;
+}
+
+/* ---------- Tableaux ---------- */
+.table thead th {
+  background: #f4f7fb;
+  color: #33475b;
+  font-size: .78rem;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+  white-space: nowrap;
+}
+
+.table-hover tbody tr:hover {
+  background: #f7f9fd;
+}
+
+/* ---------- Formulaires ---------- */
+.form-label {
+  font-weight: 600;
+  font-size: .85rem;
+  color: #27425e;
+}
+
+.btn-ecole {
+  background: var(--ecole-primary);
+  border-color: var(--ecole-primary);
+  color: #fff;
+}
+.btn-ecole:hover {
+  background: var(--ecole-primary-dark);
+  border-color: var(--ecole-primary-dark);
+  color: #fff;
+}
+
+/* ---------- Pagination ---------- */
+.page-link {
+  color: var(--ecole-primary);
+}
+.page-item.active .page-link {
+  background: var(--ecole-primary);
+  border-color: var(--ecole-primary);
+}
+
+/* ---------- Console (messages flash) ---------- */
+.alert-message {
+  animation: fadeIn .3s ease;
+}
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ---------- Coin imprimable (documents) ---------- */
+@media print {
+  .sidebar, .topbar, .no-print { display: none !important; }
+  .content-wrapper { margin-left: 0; }
+  .card { box-shadow: none; border: 1px solid #dee2e6; }
+  body { background: #fff; }
+}

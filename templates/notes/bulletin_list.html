@@ -1,0 +1,85 @@
+{% extends 'base.html' %}
+
+{% block page_title %}Bulletins scholaires{% endblock %}
+{% block title %}Bulletins scolaires{% endblock %}
+
+{% block content %}
+<div class="card shadow-sm mb-3">
+  <div class="card-body">
+    <form class="d-flex flex-wrap align-items-end gap-2" method="get">
+      <div>
+        <label class="form-label small mb-1">Année scolaire</label>
+        <select name="annee" class="form-select">
+          <option value="">Toutes</option>
+          {% for a in annees %}
+          <option value="{{ a.id }}" {% if request.GET.annee == a.id|stringformat:'s' %}selected{% endif %}>{{ a.libelle }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div>
+        <label class="form-label small mb-1">Classe</label>
+        <select name="classe" class="form-select">
+          <option value="">Toutes</option>
+          {% for c in classes %}
+          <option value="{{ c.id }}" {% if request.GET.classe == c.id|stringformat:'s' %}selected{% endif %}>{{ c.nom }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div>
+        <label class="form-label small mb-1">Période</label>
+        <select name="periode" class="form-select">
+          <option value="">Toutes</option>
+          {% for value, label in periodes %}
+          <option value="{{ value }}" {% if request.GET.periode == value %}selected{% endif %}>{{ label }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <button class="btn btn-outline-secondary"><i class="bi bi-funnel me-1"></i>Filtrer</button>
+    </form>
+    <hr class="my-3">
+    <div class="alert alert-info py-2 small mb-0">
+      <i class="bi bi-info-circle me-1"></i>
+      Astuce : génère d'abord les bulletins d'une classe pour la période
+      choisie, puis consulte / imprime chaque bulletin. Choisis une classe et une période :
+      {% for value, label in periodes %}
+      {% if request.GET.classe %}
+      <a href="{% url 'notes:bulletins_generer' request.GET.classe value %}" class="btn btn-sm btn-ecole ms-1 mb-1">{{ label }}</a>
+      {% endif %}
+      {% endfor %}
+      {% if request.GET.classe and request.GET.periode %}
+      <a href="{% url 'notes:classement' request.GET.classe request.GET.periode %}" target="_blank" class="btn btn-sm btn-outline-primary ms-1 mb-1">Classement</a>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+<div class="card shadow-sm">
+  <div class="table-responsive">
+    <table class="table table-hover align-middle mb-0">
+      <thead>
+        <tr><th>Élève</th><th>Classe</th><th>Période</th><th class="text-end">Moyenne</th><th class="text-end">Rang</th><th>Décision</th><th class="text-end">Actions</th></tr>
+      </thead>
+      <tbody>
+        {% for b in object_list %}
+        <tr>
+          <td class="fw-semibold">{{ b.eleve.nom_complet }}</td>
+          <td>{{ b.classe.nom }}</td>
+          <td>{{ b.get_periode_display }} <small class="text-muted">({{ b.annee_scolaire.libelle }})</small></td>
+          <td class="text-end fw-bold {% if b.moyenne_generale and b.moyenne_generale >= 10 %}text-success{% else %}text-danger{% endif %}">{{ b.moyenne_generale|default:'—' }}</td>
+          <td class="text-end">{{ b.rang|default:'—' }}{% if b.effectif_classe %} / {{ b.effectif_classe }}{% endif %}</td>
+          <td>{{ b.get_decision_display|default:'—' }}</td>
+          <td class="text-end">
+            <a href="{% url 'notes:bulletin_detail' b.pk %}" target="_blank" class="btn btn-sm btn-outline-primary"><i class="bi bi-printer me-1"></i>Bulletin</a>
+          </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="7" class="text-center text-muted py-5">
+          Aucun bulletin. Générez-les pour une classe et une période ci-dessus.
+        </td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% include 'includes/pagination.html' %}
+{% endblock %}

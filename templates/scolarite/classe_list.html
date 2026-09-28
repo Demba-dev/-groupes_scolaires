@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+
+{% block page_title %}Classes{% endblock %}
+{% block title %}Classes{% endblock %}
+
+{% block content %}
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+  <form class="d-flex flex-wrap gap-2" method="get">
+    <select name="annee" class="form-select w-auto" onchange="this.form.submit()">
+      <option value="">Toutes les années</option>
+      {% for a in annees %}
+      <option value="{{ a.id }}" {% if request.GET.annee == a.id|stringformat:'s' %}selected{% endif %}>{{ a.libelle }}</option>
+      {% endfor %}
+    </select>
+    <select name="cycle" class="form-select w-auto" onchange="this.form.submit()">
+      <option value="">Tous les cycles</option>
+      <option value="premier" {% if request.GET.cycle == 'premier' %}selected{% endif %}>1er cycle (1ère–6ème)</option>
+      <option value="deuxieme" {% if request.GET.cycle == 'deuxieme' %}selected{% endif %}>2ème cycle (7ème–9ème)</option>
+    </select>
+    <input type="text" name="q" value="{{ request.GET.q }}" class="form-control w-auto" placeholder="Rechercher…">
+    <button class="btn btn-outline-secondary"><i class="bi bi-search"></i></button>
+  </form>
+  <a href="{% url 'scolarite:classe_create' %}" class="btn btn-ecole"><i class="bi bi-plus-lg me-1"></i>Nouvelle classe</a>
+</div>
+
+<div class="card shadow-sm">
+  <div class="table-responsive">
+    <table class="table table-hover align-middle mb-0">
+      <thead>
+        <tr>
+          <th>Classe</th><th>Année</th><th>Cycle</th>
+          <th class="text-center">Effectif</th><th>Titulaire</th><th class="text-end">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for classe in object_list %}
+        <tr>
+          <td class="fw-semibold"><a href="{% url 'scolarite:classe_detail' classe.pk %}">{{ classe.nom }}</a></td>
+          <td>{{ classe.anne_scolaire.libelle }}</td>
+          <td>
+            {% if classe.cycle == 'premier' %}<span class="badge bg-info">1er cycle</span>
+            {% else %}<span class="badge bg-primary">2ème cycle</span>{% endif %}
+          </td>
+          <td class="text-center">{{ classe.effectif }}</td>
+          <td>{{ classe.enseignant_titulaire|default:'—' }}</td>
+          <td class="text-end text-nowrap">
+            <a href="{% url 'scolarite:classe_detail' classe.pk %}" class="btn btn-sm btn-outline-secondary"><i class="bi bi-eye"></i></a>
+            <a href="{% url 'scolarite:classe_update' classe.pk %}" class="btn btn-sm btn-outline-primary"><i class="bi bi-pencil"></i></a>
+            <a href="{% url 'scolarite:classe_delete' classe.pk %}" class="btn btn-sm btn-outline-danger"><i class="bi bi-trash3"></i></a>
+          </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="6" class="text-center text-muted py-5">Aucune classe définie.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% include 'includes/pagination.html' %}
+{% endblock %}

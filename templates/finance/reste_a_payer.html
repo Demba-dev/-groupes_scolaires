@@ -1,0 +1,80 @@
+{% extends 'base.html' %}
+{% load ui %}
+
+{% block page_title %}Reste à payer{% endblock %}
+{% block title %}Reste à payer{% endblock %}
+
+{% block content %}
+<div class="card shadow-sm mb-3">
+  <div class="card-body">
+    <form class="d-flex flex-wrap align-items-end gap-2" method="get">
+      <div>
+        <label class="form-label small mb-1">Année scolaire</label>
+        <select name="annee" class="form-select">
+          <option value="">— Année en cours —</option>
+          {% for a in annees %}
+          <option value="{{ a.id }}" {% if request.GET.annee == a.id|stringformat:'s' %}selected{% endif %}>{{ a.libelle }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div>
+        <label class="form-label small mb-1">Classe</label>
+        <select name="classe" class="form-select">
+          <option value="">Toutes les classes</option>
+          {% for c in classes %}
+          <option value="{{ c.id }}" {% if request.GET.classe == c.id|stringformat:'s' %}selected{% endif %}>{{ c.nom }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <button class="btn btn-primary"><i class="bi bi-funnel me-1"></i>Filtrer</button>
+      <a href="{% url 'finance:reste_a_payer' %}" class="btn btn-outline-secondary">Réinitialiser</a>
+    </form>
+  </div>
+</div>
+
+{% if annee %}
+<div class="card shadow-sm">
+  <div class="card-header bg-white fw-semibold">
+    <i class="bi bi-wallet2 text-warning me-2"></i>Solde des élèves — {{ annee.libelle }}{% if classe %} · {{ classe.nom }}{% endif %}
+  </div>
+  <div class="table-responsive">
+    <table class="table table-hover align-middle mb-0">
+      <thead>
+        <tr><th>Élève</th><th>Matricule</th><th class="text-end">Frais dus</th><th class="text-end">Payé</th>
+            <th class="text-end">Reste à payer</th><th></th></tr>
+      </thead>
+      <tbody>
+        {% for ligne in lignes %}
+        <tr {% if ligne.reste > 0 %}class="table-warning"{% endif %}>
+          <td class="fw-semibold"><a href="{% url 'eleves:eleve_detail' ligne.eleve.pk %}">{{ ligne.eleve.nom_complet }}</a></td>
+          <td>{{ ligne.eleve.matricule }}</td>
+          <td class="text-end">{{ ligne.montant_du|montant }}</td>
+          <td class="text-end text-success fw-semibold">{{ ligne.paye|montant }}</td>
+          <td class="text-end fw-bold {% if ligne.reste > 0 %}text-danger{% else %}text-success{% endif %}">{{ ligne.reste|montant }}</td>
+          <td class="text-end">
+            <a href="{% url 'finance:paiement_create' %}" class="btn btn-sm btn-outline-primary"><i class="bi bi-cash-coin me-1"></i>Encaisser</a>
+          </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="6" class="text-center text-muted py-5">Aucun élève.</td></tr>
+        {% endfor %}
+      </tbody>
+      <tfoot class="table-light">
+        <tr>
+          <td colspan="2" class="fw-semibold">TOTAUX</td>
+          <td class="text-end fw-semibold">{{ total_du|montant }}</td>
+          <td class="text-end fw-semibold text-success">{{ total_paye|montant }}</td>
+          <td class="text-end fw-bold text-danger">{{ total_reste|montant }}</td>
+          <td></td>
+        </tr>
+      </tfoot>
+    </table>
+  </div>
+</div>
+{% else %}
+<div class="alert alert-light border text-center py-5">
+  <i class="bi bi-wallet2 fs-1 d-block text-muted mb-2"></i>
+  Sélectionne une année scolaire pour voir les soldes.
+</div>
+{% endif %}
+{% endblock %}

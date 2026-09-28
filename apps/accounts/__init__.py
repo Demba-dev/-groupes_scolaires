@@ -1,0 +1,1 @@
+"""Application « accounts » : utilisateurs et rôles."""

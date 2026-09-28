@@ -1,0 +1,56 @@
+{% extends 'base.html' %}
+
+{% block page_title %}Certificat de scolarité — {{ eleve.nom_complet }}{% endblock %}
+{% block title %}Certificat de scolarité{% endblock %}
+
+{% block content %}
+<div class="no-print d-flex justify-content-between align-items-center mb-3">
+  <a href="{% url 'eleves:eleve_detail' eleve.pk %}" class="btn btn-outline-secondary"><i class="bi bi-arrow-left me-1"></i>Retour</a>
+  <button class="btn btn-ecole" onclick="window.print()"><i class="bi bi-printer me-1"></i>Imprimer le certificat</button>
+</div>
+
+<div class="card shadow-sm mx-auto" style="max-width: 820px;">
+  <div class="card-body p-4">
+    <div class="text-center border-bottom pb-3 mb-4">
+      <h4 class="fw-bold mb-0">{{ NOM_ECOLE }}</h4>
+      <div class="small">République du Mali · École fondamentale</div>
+      <h5 class="mt-3 mb-0 text-uppercase fw-bold" style="letter-spacing:.05em;">Certificat de scolarité</h5>
+      <span class="text-muted small">{{ annee.libelle }}</span>
+    </div>
+
+    <div class="mb-4">
+      <p>Je soussigné(e) {{ NOM_ECOLE }}, certifie que :</p>
+      <table class="table table-sm borderless w-auto small mb-3">
+        <tr><td class="text-muted" style="width:200px;">Nom &amp; prénom</td><td class="fw-bold">{{ eleve.nom_complet }}</td></tr>
+        <tr><td class="text-muted">Né(e) le</td><td>{{ eleve.date_naissance|date:'d/m/Y'|default:'—' }}{% if eleve.lieu_naissance %} à {{ eleve.lieu_naissance }}{% endif %}</td></tr>
+        <tr><td class="text-muted">Sexe</td><td>{{ eleve.get_sexe_display }}</td></tr>
+        <tr><td class="text-muted">Matricule</td><td>{{ eleve.matricule }}</td></tr>
+        {% if inscription %}
+        <tr><td class="text-muted">Est inscrit(e) en</td><td><strong>{{ inscription.classe.nom }}</strong></td></tr>
+        <tr><td class="text-muted">Année scolaire</td><td>{{ inscription.annee_scolaire.libelle }}</td></tr>
+        {% endif %}
+      </table>
+      <p>est régulièrement inscrit(e) dans cet établissement pour l'année scolaire {{ annee.libelle }}{% if inscription %} et suit effectivement les cours en classe de {{ inscription.classe.nom }}{% endif %}.</p>
+    </div>
+
+    <p class="small">Le présent certificat est délivré à l'intéressé(e) pour servir et valoir ce que de droit.</p>
+
+    <div class="text-end text-muted small mb-5">Fait à Bamako, le ______________</div>
+
+    <div class="row mt-4 small text-center">
+      <div class="col-4">
+        <div class="mb-5">Le/La parent(e)</div>
+        <div class="border-top">Signature</div>
+      </div>
+      <div class="col-4">
+        <div class="mb-5">Le/La responsable pédagogique</div>
+        <div class="border-top">Signature &amp; cachet</div>
+      </div>
+      <div class="col-4">
+        <div class="mb-5">Le Directeur / La Directrice</div>
+        <div class="border-top">Signature &amp; cachet</div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

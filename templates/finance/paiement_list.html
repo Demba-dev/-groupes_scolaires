@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+{% load ui %}
+
+{% block page_title %}Paiements{% endblock %}
+{% block title %}Paiements{% endblock %}
+
+{% block content %}
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+  <form class="d-flex flex-wrap gap-2" method="get">
+    <select name="annee" class="form-select w-auto" onchange="this.form.submit()">
+      <option value="">Toutes les années</option>
+      {% for a in annees %}
+      <option value="{{ a.id }}" {% if request.GET.annee == a.id|stringformat:'s' %}selected{% endif %}>{{ a.libelle }}</option>
+      {% endfor %}
+    </select>
+    <select name="classe" class="form-select w-auto" onchange="this.form.submit()">
+      <option value="">Toutes les classes</option>
+      {% for c in classes %}
+      <option value="{{ c.id }}" {% if request.GET.classe == c.id|stringformat:'s' %}selected{% endif %}>{{ c.nom }}</option>
+      {% endfor %}
+    </select>
+    <input type="text" name="q" value="{{ request.GET.q }}" class="form-control w-auto" placeholder="Élève, matricule, reçu…">
+    <button class="btn btn-outline-secondary"><i class="bi bi-search"></i></button>
+  </form>
+  <a href="{% url 'finance:paiement_create' %}" class="btn btn-ecole"><i class="bi bi-plus-lg me-1"></i>Nouveau paiement</a>
+</div>
+
+<div class="card shadow-sm">
+  <div class="table-responsive">
+    <table class="table table-hover align-middle mb-0">
+      <thead>
+        <tr><th>Reçu</th><th>Élève</th><th>Année</th><th>Objet</th><th>Mode</th><th class="text-end">Montant</th><th>Date</th><th class="text-end">Actions</th></tr>
+      </thead>
+      <tbody>
+        {% for p in object_list %}
+        <tr>
+          <td class="fw-semibold">{{ p.recu_numero }}</td>
+          <td>{{ p.eleve.nom_complet }}</td>
+          <td>{{ p.annee_scolaire.libelle }}</td>
+          <td>{{ p.libelle|default:'—' }}</td>
+          <td>{{ p.get_mode_display }}</td>
+          <td class="text-end fw-bold">{{ p.montant|montant }}</td>
+          <td>{{ p.date|date:'d/m/Y' }}</td>
+          <td class="text-end text-nowrap">
+            <a href="{% url 'finance:detail_paiement' p.pk %}" target="_blank" class="btn btn-sm btn-outline-primary"><i class="bi bi-receipt"></i> Reçu</a>
+            <a href="{% url 'finance:paiement_update' p.pk %}" class="btn btn-sm btn-outline-secondary"><i class="bi bi-pencil"></i></a>
+            <a href="{% url 'finance:paiement_delete' p.pk %}" class="btn btn-sm btn-outline-danger"><i class="bi bi-trash3"></i></a>
+          </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="8" class="text-center text-muted py-5">Aucun paiement.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% include 'includes/pagination.html' %}
+{% endblock %}

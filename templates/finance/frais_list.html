@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+{% load ui %}
+
+{% block page_title %}Frais scolaires{% endblock %}
+{% block title %}Frais scolaires{% endblock %}
+
+{% block content %}
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+  <form class="d-flex gap-2" method="get">
+    <select name="annee" class="form-select w-auto" onchange="this.form.submit()">
+      <option value="">Toutes les années</option>
+      {% for a in annees %}
+      <option value="{{ a.id }}" {% if request.GET.annee == a.id|stringformat:'s' %}selected{% endif %}>{{ a.libelle }}</option>
+      {% endfor %}
+    </select>
+  </form>
+  <a href="{% url 'finance:frais_create' %}" class="btn btn-ecole"><i class="bi bi-plus-lg me-1"></i>Nouveau frais</a>
+</div>
+
+<div class="card shadow-sm">
+  <div class="table-responsive">
+    <table class="table table-hover align-middle mb-0">
+      <thead>
+        <tr><th>Libellé</th><th class="text-end">Montant</th><th>Année scolaire</th><th class="text-center">Obligatoire</th><th class="text-end">Actions</th></tr>
+      </thead>
+      <tbody>
+        {% for f in object_list %}
+        <tr>
+          <td class="fw-semibold">{{ f.libelle }}</td>
+          <td class="text-end fw-bold">{{ f.montant|montant }}</td>
+          <td>{{ f.annee_scolaire.libelle }}</td>
+          <td class="text-center">
+            {% if f.obligatoire %}<i class="bi bi-check-circle-fill text-success"></i>{% else %}<span class="text-muted">—</span>{% endif %}
+          </td>
+          <td class="text-end text-nowrap">
+            <a href="{% url 'finance:frais_update' f.pk %}" class="btn btn-sm btn-outline-primary"><i class="bi bi-pencil"></i></a>
+            <a href="{% url 'finance:frais_delete' f.pk %}" class="btn btn-sm btn-outline-danger"><i class="bi bi-trash3"></i></a>
+          </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="5" class="text-center text-muted py-5">Aucun frais défini pour cette année.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% include 'includes/pagination.html' %}
+{% endblock %}

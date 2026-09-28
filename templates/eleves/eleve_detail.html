@@ -1,0 +1,566 @@
+{% extends 'base.html' %}
+{% load ui %}
+
+{% block page_title %}{{ eleve.nom_complet }}{% endblock %}
+{% block title %}{{ eleve.nom_complet }}{% endblock %}
+
+{% block extra_css %}
+<style>
+  /* ---------- Carte identité ---------- */
+  .student-hero {
+    background: #fff;
+    border: 1px solid var(--gs-border);
+    border-radius: var(--gs-radius);
+    box-shadow: var(--gs-shadow-sm);
+    padding: 22px;
+    margin-bottom: 20px;
+  }
+
+  .student-hero__main {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    gap: 20px;
+  }
+
+  .student-hero__avatar {
+    width: 88px;
+    height: 88px;
+    border-radius: 50%;
+    object-fit: cover;
+    flex-shrink: 0;
+    border: 3px solid #fff;
+    box-shadow: 0 0 0 1px var(--gs-border), var(--gs-shadow);
+  }
+
+  .student-hero__avatar-fallback {
+    width: 88px;
+    height: 88px;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #e0e7ff, #c7d2fe);
+    color: #3730a3;
+    font-size: 36px;
+    flex-shrink: 0;
+    border: 3px solid #fff;
+    box-shadow: 0 0 0 1px var(--gs-border), var(--gs-shadow);
+  }
+
+  .student-hero__name {
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--gs-text);
+    margin: 0 0 6px;
+    letter-spacing: -.02em;
+    line-height: 1.2;
+  }
+
+  .student-hero__meta {
+    font-size: 13px;
+    color: var(--gs-text-muted);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 14px;
+    margin-bottom: 10px;
+  }
+
+  .student-hero__meta span {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px
+  }
+
+  .student-hero__meta strong {
+    color: var(--gs-text);
+    font-weight: 600
+  }
+
+  .student-hero__badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px
+  }
+
+  /* ---------- Bloc coordonnées ---------- */
+  .contact-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    font-size: 13px;
+    color: var(--gs-text);
+    display: grid;
+    gap: 8px;
+  }
+
+  .contact-list li {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 8px 12px;
+    background: #f8fafc;
+    border-radius: 8px;
+    border: 1px solid #eef2f7;
+  }
+
+  .contact-list li i {
+    color: var(--gs-primary-600);
+    font-size: 15px;
+    margin-top: 1px;
+    flex-shrink: 0;
+  }
+
+  .contact-list li span {
+    color: var(--gs-text-muted);
+    font-size: 12px;
+    display: block;
+    line-height: 1.2
+  }
+
+  .contact-list li strong {
+    color: var(--gs-text);
+    font-weight: 600;
+    font-size: 13px
+  }
+
+  /* ---------- Boutons d'action ---------- */
+  .student-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    min-width: 200px;
+  }
+
+  .student-actions .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 9px 14px;
+  }
+
+  /* ---------- Badges ---------- */
+  .status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11.5px;
+    font-weight: 600;
+    padding: 5px 11px;
+    border-radius: 999px;
+    white-space: nowrap;
+  }
+
+  .status-badge::before {
+    content: "";
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: currentColor;
+  }
+
+  .status-actif {
+    background: #dcfce7;
+    color: #166534
+  }
+
+  .status-inactive {
+    background: #f1f5f9;
+    color: #475569
+  }
+
+  .badge-classe {
+    background: #dbeafe;
+    color: #1e40af
+  }
+
+  /* ---------- Cartes sections ---------- */
+  .section-card {
+    background: #fff;
+    border: 1px solid var(--gs-border);
+    border-radius: var(--gs-radius);
+    box-shadow: var(--gs-shadow-sm);
+    overflow: hidden;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .section-card__head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 14px 18px;
+    border-bottom: 1px solid var(--gs-border);
+    background: linear-gradient(180deg, #fbfcfe, #f6f8fc);
+  }
+
+  .section-card__title {
+    font-weight: 600;
+    font-size: 14px;
+    color: var(--gs-text);
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0;
+  }
+
+  .section-card__title i {
+    width: 28px;
+    height: 28px;
+    border-radius: 8px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: #e0e7ff;
+    color: #3730a3;
+    font-size: 14px;
+  }
+
+  .section-card__title i.icon-notes {
+    background: #dbeafe;
+    color: #1e40af
+  }
+
+  .section-card__title i.icon-finance {
+    background: #dcfce7;
+    color: #166534
+  }
+
+  .section-card .table thead th {
+    background: #f8fafc;
+    font-size: 11px;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    color: var(--gs-text-muted);
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--gs-border);
+    white-space: nowrap;
+  }
+
+  .section-card .table tbody td {
+    padding: 11px 14px;
+    font-size: 13.5px;
+    border-bottom: 1px solid #f1f5f9;
+    vertical-align: middle;
+  }
+
+  .section-card .table tbody tr:last-child td {
+    border-bottom: none
+  }
+
+  .section-card .table tbody tr:hover {
+    background: #f8fafc
+  }
+
+  .recu-badge {
+    font-family: ui-monospace, Menlo, monospace;
+    font-size: 12px;
+    background: #f1f5f9;
+    color: var(--gs-text);
+    padding: 3px 8px;
+    border-radius: 6px;
+    text-decoration: none;
+    transition: background .15s;
+    display: inline-block;
+  }
+
+  .recu-badge:hover {
+    background: #e2e8f0;
+    color: var(--gs-primary-700)
+  }
+
+  .montant {
+    font-variant-numeric: tabular-nums;
+    font-weight: 700;
+    color: var(--gs-text);
+  }
+
+  .empty-row {
+    text-align: center;
+    color: var(--gs-text-muted);
+    padding: 28px 16px;
+    font-size: 13px;
+  }
+
+  .empty-row i {
+    display: block;
+    font-size: 26px;
+    color: #cbd5e1;
+    margin-bottom: 6px;
+  }
+
+  /* ---------- Responsive ---------- */
+  @media (max-width:767.98px) {
+    .student-hero__main {
+      flex-direction: column;
+      align-items: stretch
+    }
+
+    .student-hero__avatar,
+    .student-hero__avatar-fallback {
+      align-self: center
+    }
+
+    .student-hero__name,
+    .student-hero__meta {
+      text-align: center;
+      justify-content: center
+    }
+
+    .student-hero__badges {
+      justify-content: center
+    }
+
+    .student-actions {
+      min-width: 0;
+      width: 100%
+    }
+
+    .student-actions .btn {
+      width: 100%
+    }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+
+{# ---------- Carte identité ---------- #}
+<div class="student-hero">
+  <div class="student-hero__main">
+    {# Avatar #}
+    <div>
+      {% if eleve.photo %}
+      <img src="{{ eleve.photo.url }}" alt="" class="student-hero__avatar">
+      {% else %}
+      <div class="student-hero__avatar-fallback"><i class="bi bi-person"></i></div>
+      {% endif %}
+    </div>
+
+    {# Identité #}
+    <div class="flex-grow-1">
+      <h2 class="student-hero__name">{{ eleve.nom_complet }}</h2>
+      <div class="student-hero__meta">
+        <span><i class="bi bi-hash"></i>Matricule <strong>{{ eleve.matricule }}</strong></span>
+        <span><i class="bi bi-gender-ambiguous"></i>{{ eleve.get_sexe_display }}</span>
+        <span>
+          <i class="bi bi-cake2"></i>
+          Né(e) le <strong>{{ eleve.date_naissance|date:'d/m/Y'|default:'—' }}</strong>
+          {% if eleve.lieu_naissance %} à {{ eleve.lieu_naissance }}{% endif %}
+        </span>
+      </div>
+      <div class="student-hero__badges">
+        {% if eleve.statut == 'actif' %}
+        <span class="status-badge status-actif">Actif</span>
+        {% else %}
+        <span class="status-badge status-inactive">{{ eleve.get_statut_display }}</span>
+        {% endif %}
+        {% if eleve.classe_actuelle %}
+        <span class="status-badge badge-classe">
+          <i class="bi bi-journal-bookmark"></i>Classe : {{ eleve.classe_actuelle.nom }}
+        </span>
+        {% endif %}
+      </div>
+    </div>
+
+    {# Coordonnées #}
+    <div style="min-width:260px;max-width:320px" class="flex-grow-1">
+      <ul class="contact-list">
+        <li>
+          <i class="bi bi-geo-alt"></i>
+          <div>
+            <span>Adresse</span>
+            <strong>{{ eleve.adresse|default:'Non renseignée' }}</strong>
+          </div>
+        </li>
+        <li>
+          <i class="bi bi-person-vcard"></i>
+          <div>
+            <span>Parent / Tuteur</span>
+            <strong>{{ eleve.tuteur|default:'—' }}</strong>
+          </div>
+        </li>
+        <li>
+          <i class="bi bi-telephone"></i>
+          <div>
+            <span>Téléphone</span>
+            <strong>{{ eleve.telephone_tuteur|default:'—' }}</strong>
+          </div>
+        </li>
+      </ul>
+    </div>
+
+    {# Actions #}
+    <div class="student-actions">
+      <a href="{% url 'eleves:update' eleve.pk %}" class="btn btn-primary">
+        <i class="bi bi-pencil"></i>Modifier
+      </a>
+      <a href="{% url 'eleves:certificat' eleve.pk %}" target="_blank" class="btn btn-outline-secondary">
+        <i class="bi bi-award"></i>Certificat de scolarité
+      </a>
+      <a href="{% url 'eleves:inscription_create' %}?eleve={{ eleve.pk }}" class="btn btn-outline-primary">
+        <i class="bi bi-person-plus"></i>(Ré)inscrire
+      </a>
+    </div>
+  </div>
+</div>
+
+{# ---------- Historique + Bulletins ---------- #}
+<div class="row g-3">
+  <div class="col-lg-6">
+    <div class="section-card">
+      <div class="section-card__head">
+        <h3 class="section-card__title">
+          <i class="bi bi-journal-bookmark"></i>Historique scolaire
+        </h3>
+        <span class="badge bg-light text-dark border">{{ inscriptions|length }}</span>
+      </div>
+      <div class="table-responsive flex-grow-1">
+        <table class="table mb-0">
+          <thead>
+            <tr>
+              <th>Année</th>
+              <th>Classe</th>
+              <th>Type</th>
+              <th>Statut</th>
+              <th class="text-end"></th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for ins in inscriptions %}
+            <tr>
+              <td>{{ ins.annee_scolaire.libelle }}</td>
+              <td class="fw-semibold">{{ ins.classe.nom }}</td>
+              <td>{{ ins.get_type_inscription_display }}</td>
+              <td>
+                {% if ins.statut == 'active' %}
+                <span class="status-badge status-actif">Active</span>
+                {% else %}
+                <span class="status-badge status-inactive">Clôturée</span>
+                {% endif %}
+              </td>
+              <td class="text-end">
+                <a href="{% url 'eleves:inscription_update' ins.pk %}" class="btn btn-sm btn-outline-primary"
+                  title="Modifier l'inscription">
+                  <i class="bi bi-pencil"></i>
+                </a>
+              </td>
+            </tr>
+            {% empty %}
+            <tr>
+              <td colspan="5">
+                <div class="empty-row">
+                  <i class="bi bi-journal-x"></i>
+                  Aucune inscription enregistrée.
+                </div>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-lg-6">
+    <div class="section-card">
+      <div class="section-card__head">
+        <h3 class="section-card__title">
+          <i class="bi bi-file-earmark-text icon-notes"></i>Bulletins
+        </h3>
+        <span class="badge bg-light text-dark border">{{ bulletins|length }}</span>
+      </div>
+      <div class="table-responsive flex-grow-1">
+        <table class="table mb-0">
+          <thead>
+            <tr>
+              <th>Année</th>
+              <th>Classe</th>
+              <th>Période</th>
+              <th class="text-end">Moyenne</th>
+              <th class="text-end">Rang</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for b in bulletins %}
+            <tr>
+              <td>{{ b.annee_scolaire.libelle }}</td>
+              <td class="fw-semibold">{{ b.classe.nom }}</td>
+              <td>{{ b.get_periode_display }}</td>
+              <td class="text-end montant">{{ b.moyenne_generale|default:'—' }}</td>
+              <td class="text-end">{{ b.rang|default:'—' }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+              <td colspan="5">
+                <div class="empty-row">
+                  <i class="bi bi-file-earmark-x"></i>
+                  Aucun bulletin disponible.
+                </div>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+{# ---------- Paiements ---------- #}
+<div class="section-card mt-3">
+  <div class="section-card__head">
+    <h3 class="section-card__title">
+      <i class="bi bi-cash-coin icon-finance"></i>Paiements
+    </h3>
+    <a href="{% url 'finance:paiement_create' %}" class="btn btn-sm btn-primary">
+      <i class="bi bi-plus-lg me-1"></i>Nouveau paiement
+    </a>
+  </div>
+  <div class="table-responsive">
+    <table class="table mb-0">
+      <thead>
+        <tr>
+          <th>Reçu</th>
+          <th>Année</th>
+          <th>Objet</th>
+          <th>Mode</th>
+          <th class="text-end">Montant</th>
+          <th>Date</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for p in paiements %}
+        <tr>
+          <td>
+            <a href="{% url 'finance:detail_paiement' p.pk %}" target="_blank" class="recu-badge">
+              {{ p.recu_numero }}
+            </a>
+          </td>
+          <td>{{ p.annee_scolaire.libelle }}</td>
+          <td>{{ p.libelle }}</td>
+          <td>{{ p.get_mode_display }}</td>
+          <td class="text-end montant">{{ p.montant|montant }}</td>
+          <td>{{ p.date|date:'d/m/Y' }}</td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="6">
+            <div class="empty-row">
+              <i class="bi bi-receipt"></i>
+              Aucun paiement enregistré.
+            </div>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+{% endblock %}

@@ -1,0 +1,383 @@
+{% extends 'base.html' %}
+
+{% block page_title %}Élèves{% endblock %}
+{% block title %}Élèves{% endblock %}
+
+{% block extra_css %}
+<style>
+  /* ---- Barre de filtres ---- */
+  .filters-card {
+    background: #fff;
+    border: 1px solid var(--gs-border);
+    border-radius: var(--gs-radius);
+    padding: 16px 18px;
+    box-shadow: var(--gs-shadow-sm);
+    margin-bottom: 20px;
+  }
+
+  .filters-card .form-control,
+  .filters-card .form-select {
+    min-width: 0;
+  }
+
+  .filters-card .filter-search {
+    flex: 1 1 240px;
+    max-width: 340px
+  }
+
+  .filters-card .filter-select {
+    flex: 0 1 200px
+  }
+
+  .filters-card .btn-icon {
+    width: 42px;
+    height: 42px;
+    padding: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .filters-card .reset-link {
+    font-size: 12.5px;
+    color: var(--gs-text-muted);
+    text-decoration: none;
+    font-weight: 500;
+  }
+
+  .filters-card .reset-link:hover {
+    color: var(--gs-primary-600)
+  }
+
+  /* ---- En-tête de page ---- */
+  .page-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+
+  .page-head .page-count {
+    font-size: 13px;
+    color: var(--gs-text-muted);
+    font-weight: 500;
+  }
+
+  .page-head .page-count strong {
+    color: var(--gs-text)
+  }
+
+  /* ---- Tableau élèves ---- */
+  .table-eleves thead th {
+    position: sticky;
+    top: 0;
+    z-index: 2
+  }
+
+  .table-eleves tbody tr {
+    transition: background .15s ease
+  }
+
+  .table-eleves .avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #fff;
+    box-shadow: 0 0 0 1px var(--gs-border);
+  }
+
+  .table-eleves .avatar-fallback {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #e0e7ff, #c7d2fe);
+    color: #3730a3;
+    font-size: 15px;
+    border: 2px solid #fff;
+    box-shadow: 0 0 0 1px var(--gs-border);
+  }
+
+  .table-eleves .matricule {
+    font-family: ui-monospace, 'SFMono-Regular', Menlo, monospace;
+    font-size: 12.5px;
+    color: var(--gs-text-muted);
+    background: #f1f5f9;
+    padding: 3px 8px;
+    border-radius: 6px;
+    white-space: nowrap;
+  }
+
+  .table-eleves .nom-link {
+    color: var(--gs-text);
+    font-weight: 600;
+    text-decoration: none;
+  }
+
+  .table-eleves .nom-link:hover {
+    color: var(--gs-primary-600)
+  }
+
+  .table-eleves .parent-cell {
+    max-width: 180px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .table-eleves .tel-cell {
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+
+  .table-eleves .actions-cell {
+    display: inline-flex;
+    gap: 4px;
+    justify-content: flex-end;
+  }
+
+  .table-eleves .actions-cell .btn {
+    width: 34px;
+    height: 34px;
+    padding: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+  }
+
+  .table-eleves .actions-cell .btn i {
+    font-size: 14px
+  }
+
+  /* ---- Badges statut ---- */
+  .status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11.5px;
+    font-weight: 600;
+    padding: 4px 10px;
+    border-radius: 999px;
+    white-space: nowrap;
+  }
+
+  .status-badge::before {
+    content: "";
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: currentColor;
+  }
+
+  .status-actif {
+    background: #dcfce7;
+    color: #166534
+  }
+
+  .status-transfere {
+    background: #dbeafe;
+    color: #1e40af
+  }
+
+  .status-abandon {
+    background: #fef3c7;
+    color: #92400e
+  }
+
+  .status-other {
+    background: #f1f5f9;
+    color: #475569
+  }
+
+  /* ---- État vide ---- */
+  .empty-state {
+    padding: 64px 24px;
+    text-align: center;
+    color: var(--gs-text-muted);
+  }
+
+  .empty-state i {
+    font-size: 44px;
+    color: #cbd5e1;
+    display: block;
+    margin-bottom: 12px;
+  }
+
+  .empty-state h6 {
+    color: var(--gs-text);
+    font-weight: 600;
+    margin-bottom: 4px
+  }
+
+  .empty-state p {
+    font-size: 13px;
+    margin: 0
+  }
+
+  /* ---- Responsive ---- */
+  @media (max-width:767.98px) {
+
+    .filters-card .filter-search,
+    .filters-card .filter-select {
+      flex: 1 1 100%;
+      max-width: none
+    }
+
+    .filters-card .btn-icon {
+      width: 100%
+    }
+
+    .table-eleves .parent-cell {
+      max-width: 140px
+    }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+
+{# ---------- En-tête de page ---------- #}
+<div class="page-head">
+  <div class="page-count">
+    {% if object_list %}
+    <strong>{{ object_list|length }}</strong> élève{{ object_list|length|pluralize }} affiché{{
+    object_list|length|pluralize }}
+    {% else %}
+    Aucun résultat
+    {% endif %}
+  </div>
+  <a href="{% url 'eleves:create' %}" class="btn btn-primary">
+    <i class="bi bi-plus-lg me-1"></i>Nouvel élève
+  </a>
+</div>
+
+{# ---------- Filtres ---------- #}
+<form class="filters-card" method="get">
+  <div class="d-flex flex-wrap align-items-center gap-2">
+    <div class="position-relative filter-search">
+      <i class="bi bi-search position-absolute"
+        style="left:12px;top:50%;transform:translateY(-50%);color:var(--gs-text-muted);font-size:13px;pointer-events:none"></i>
+      <input type="text" name="q" value="{{ request.GET.q }}" class="form-control ps-5"
+        placeholder="Matricule, nom, parent, tél…">
+    </div>
+
+    <select name="classe" class="form-select filter-select" onchange="this.form.submit()">
+      <option value="">Toutes les classes</option>
+      {% for c in classes %}
+      <option value="{{ c.id }}" {% if request.GET.classe == c.id|stringformat:'s' %}selected{% endif %}>{{ c.nom }} ({{
+        c.anne_scolaire.libelle }})</option>
+      {% endfor %}
+    </select>
+
+    <select name="sexe" class="form-select filter-select" onchange="this.form.submit()">
+      <option value="">Sexe</option>
+      <option value="M" {% if request.GET.sexe == 'M' %}selected{% endif %}>Masculin</option>
+      <option value="F" {% if request.GET.sexe == 'F' %}selected{% endif %}>Féminin</option>
+    </select>
+
+    <select name="statut" class="form-select filter-select" onchange="this.form.submit()">
+      <option value="">Tous les statuts</option>
+      {% for value, label in view.model.STATUT_ELEVE_CHOICES %}
+      <option value="{{ value }}" {% if request.GET.statut == value %}selected{% endif %}>{{ label }}</option>
+      {% endfor %}
+    </select>
+
+    <button class="btn btn-primary btn-icon" title="Rechercher" aria-label="Rechercher">
+      <i class="bi bi-search"></i>
+    </button>
+
+    {% if request.GET.q or request.GET.classe or request.GET.sexe or request.GET.statut %}
+    <a href="?" class="reset-link ms-1">
+      <i class="bi bi-x-circle me-1"></i>Réinitialiser
+    </a>
+    {% endif %}
+  </div>
+</form>
+
+{# ---------- Tableau ---------- #}
+<div class="card">
+  <div class="table-responsive">
+    <table class="table table-hover align-middle mb-0 table-eleves">
+      <thead>
+        <tr>
+          <th class="text-center" style="width:56px">Photo</th>
+          <th style="width:130px">Matricule</th>
+          <th>Nom &amp; prénom</th>
+          <th style="width:90px">Sexe</th>
+          <th style="width:120px">Né(e) le</th>
+          <th>Parent / Tuteur</th>
+          <th style="width:140px">Tél. parent</th>
+          <th style="width:120px">Statut</th>
+          <th class="text-end" style="width:140px">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for eleve in object_list %}
+        <tr>
+          <td class="text-center">
+            {% if eleve.photo %}
+            <img src="{{ eleve.photo.url }}" alt="" class="avatar">
+            {% else %}
+            <span class="avatar-fallback"><i class="bi bi-person"></i></span>
+            {% endif %}
+          </td>
+          <td><span class="matricule">{{ eleve.matricule }}</span></td>
+          <td>
+            <a href="{% url 'eleves:eleve_detail' eleve.pk %}" class="nom-link">
+              {{ eleve.nom_complet }}
+            </a>
+          </td>
+          <td>{{ eleve.get_sexe_display }}</td>
+          <td>{{ eleve.date_naissance|date:'d/m/Y'|default:'—' }}</td>
+          <td class="parent-cell" title="{{ eleve.tuteur|default:'—' }}">{{ eleve.tuteur|default:'—' }}</td>
+          <td class="tel-cell">{{ eleve.telephone_tuteur|default:'—' }}</td>
+          <td>
+            {% if eleve.statut == 'actif' %}
+            <span class="status-badge status-actif">Actif</span>
+            {% elif eleve.statut == 'transfere' %}
+            <span class="status-badge status-transfere">Transféré</span>
+            {% elif eleve.statut == 'abandon' %}
+            <span class="status-badge status-abandon">Abandon</span>
+            {% else %}
+            <span class="status-badge status-other">{{ eleve.get_statut_display }}</span>
+            {% endif %}
+          </td>
+          <td class="text-end">
+            <div class="actions-cell">
+              <a href="{% url 'eleves:eleve_detail' eleve.pk %}" class="btn btn-outline-secondary"
+                title="Voir la fiche">
+                <i class="bi bi-eye"></i>
+              </a>
+              <a href="{% url 'eleves:update' eleve.pk %}" class="btn btn-outline-primary" title="Modifier">
+                <i class="bi bi-pencil"></i>
+              </a>
+              <a href="{% url 'eleves:delete' eleve.pk %}" class="btn btn-outline-danger" title="Supprimer">
+                <i class="bi bi-trash3"></i>
+              </a>
+            </div>
+          </td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="9">
+            <div class="empty-state">
+              <i class="bi bi-people"></i>
+              <h6>Aucun élève trouvé</h6>
+              <p>Aucun élève ne correspond à votre recherche ou aucun élève n'a encore été enregistré.</p>
+            </div>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+{% include 'includes/pagination.html' %}
+{% endblock %}

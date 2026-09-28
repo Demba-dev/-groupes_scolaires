@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+
+{% block page_title %}Affectations (classe / matière / enseignant){% endblock %}
+{% block title %}Affectations{% endblock %}
+
+{% block content %}
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+  <form class="d-flex flex-wrap gap-2" method="get">
+    <select name="annee" class="form-select w-auto" onchange="this.form.submit()">
+      <option value="">Toutes les années</option>
+      {% for a in annees %}
+      <option value="{{ a.id }}" {% if request.GET.annee == a.id|stringformat:'s' %}selected{% endif %}>{{ a.libelle }}</option>
+      {% endfor %}
+    </select>
+    <input type="text" name="q" value="{{ request.GET.q }}" class="form-control w-auto" placeholder="Matière ou enseignant…">
+    <button class="btn btn-outline-secondary"><i class="bi bi-search"></i></button>
+  </form>
+  <a href="{% url 'scolarite:enseignement_create' %}" class="btn btn-ecole"><i class="bi bi-plus-lg me-1"></i>Nouvelle affectation</a>
+</div>
+
+<div class="card shadow-sm">
+  <div class="table-responsive">
+    <table class="table table-hover align-middle mb-0">
+      <thead>
+        <tr><th>Classe</th><th>Matière</th><th>Enseignant</th><th class="text-center">Coefficient</th><th class="text-end">Horaire</th><th class="text-end">Actions</th></tr>
+      </thead>
+      <tbody>
+        {% for e in object_list %}
+        <tr>
+          <td class="fw-semibold">{{ e.classe.nom }} <small class="text-muted">({{ e.classe.anne_scolaire.libelle }})</small></td>
+          <td>{{ e.matiere.nom }}</td>
+          <td>{{ e.enseignant }}</td>
+          <td class="text-center">{{ e.coefficient_effectif }}</td>
+          <td class="text-end">{{ e.horaire_hebdomadaire|default:'—' }} h</td>
+          <td class="text-end text-nowrap">
+            <a href="{% url 'scolarite:enseignement_update' e.pk %}" class="btn btn-sm btn-outline-primary"><i class="bi bi-pencil"></i></a>
+            <a href="{% url 'scolarite:enseignement_delete' e.pk %}" class="btn btn-sm btn-outline-danger"><i class="bi bi-trash3"></i></a>
+          </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="6" class="text-center text-muted py-5">Aucune affectation. Assignez un enseignant à une classe et une matière.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% include 'includes/pagination.html' %}
+{% endblock %}

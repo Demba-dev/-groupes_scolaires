@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+
+{% block page_title %}Utilisateurs{% endblock %}
+{% block title %}Utilisateurs{% endblock %}
+
+{% block content %}
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+  <form class="d-flex flex-wrap gap-2" method="get">
+    <select name="role" class="form-select w-auto" onchange="this.form.submit()">
+      <option value="">Tous les rôles</option>
+      {% for value, label in ROLE_CHOICES %}
+      <option value="{{ value }}" {% if request.GET.role == value %}selected{% endif %}>{{ label }}</option>
+      {% endfor %}
+    </select>
+    <input type="text" name="q" value="{{ request.GET.q }}" class="form-control w-auto" placeholder="Nom d'utilisateur, nom…">
+    <button class="btn btn-outline-secondary"><i class="bi bi-search"></i></button>
+  </form>
+  <a href="{% url 'accounts:utilisateur_create' %}" class="btn btn-ecole"><i class="bi bi-plus-lg me-1"></i>Nouvel utilisateur</a>
+</div>
+
+<div class="card shadow-sm">
+  <div class="table-responsive">
+    <table class="table table-hover align-middle mb-0">
+      <thead>
+        <tr><th>Utilisateur</th><th>Nom complet</th><th>Rôle</th><th>Téléphone</th><th class="text-center">Actif</th><th class="text-end">Actions</th></tr>
+      </thead>
+      <tbody>
+        {% for u in object_list %}
+        <tr>
+          <td class="fw-semibold">{{ u.username }}{% if u.is_superuser %} <span class="badge bg-warning text-dark">Superuser</span>{% endif %}</td>
+          <td>{{ u.get_full_name|default:'—' }}</td>
+          <td>
+            {% if u.role == 'direction' %}<span class="badge bg-primary">Direction / Admin</span>
+            {% else %}<span class="badge bg-info">Enseignant</span>{% endif %}
+          </td>
+          <td>{{ u.telephone|default:'—' }}</td>
+          <td class="text-center">{% if u.is_active %}<i class="bi bi-check-circle-fill text-success"></i>{% else %}<i class="bi bi-x-circle text-muted"></i>{% endif %}</td>
+          <td class="text-end text-nowrap">
+            <a href="{% url 'accounts:utilisateur_update' u.pk %}" class="btn btn-sm btn-outline-primary"><i class="bi bi-pencil"></i></a>
+            {% if u != request.user %}
+            <a href="{% url 'accounts:utilisateur_delete' u.pk %}" class="btn btn-sm btn-outline-danger"><i class="bi bi-trash3"></i></a>
+            {% endif %}
+          </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="6" class="text-center text-muted py-5">Aucun utilisateur.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% include 'includes/pagination.html' %}
+{% endblock %}

@@ -1,0 +1,1 @@
+"""Application « core » : éléments transverses (contexte, sécurité, dashboard)."""

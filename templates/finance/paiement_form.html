@@ -1,0 +1,12 @@
+{% extends 'crud/form.html' %}
+{% load ui %}
+
+{% block content %}
+<div class="alert alert-info py-2">
+  <i class="bi bi-info-circle me-2"></i>
+  Vérifie le <a href="{% url 'finance:reste_a_payer' %}" class="alert-link">reste à payer</a>
+  de l'élève avant d'encaisser. Le n° de reçu est généré automatiquement.
+  Si tu choisis un poste de frais, l'objet est rempli automatiquement.
+</div>
+{{ block.super }}
+{% endblock %}

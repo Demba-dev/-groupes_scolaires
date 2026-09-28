@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+{% load ui %}
+
+{% block page_title %}Reçu de paiement {{ paiement.recu_numero }}{% endblock %}
+{% block title %}Reçu de paiement{% endblock %}
+
+{% block content %}
+<div class="no-print d-flex justify-content-between align-items-center mb-3">
+  <a href="{% url 'finance:paiements' %}" class="btn btn-outline-secondary"><i class="bi bi-arrow-left me-1"></i>Retour</a>
+  <div class="d-flex gap-2">
+    <a href="{% url 'finance:paiement_update' paiement.pk %}" class="btn btn-outline-primary"><i class="bi bi-pencil me-1"></i>Modifier</a>
+    <button class="btn btn-ecole" onclick="window.print()"><i class="bi bi-printer me-1"></i>Imprimer le reçu</button>
+  </div>
+</div>
+
+<div class="card shadow-sm mx-auto" style="max-width: 720px;">
+  <div class="card-body p-4">
+    <div class="d-flex justify-content-between align-items-start border-bottom pb-3 mb-3">
+      <div>
+        <h4 class="fw-bold mb-0">{{ NOM_ECOLE }}</h4>
+        <div class="small text-muted">République du Mali · École fondamentale</div>
+      </div>
+      <div class="text-end">
+        <div class="badge bg-primary fs-6 mb-1">REÇU N° {{ paiement.recu_numero }}</div>
+        <div class="small text-muted">Date : {{ paiement.date|date:'d/m/Y' }}</div>
+      </div>
+    </div>
+
+    <table class="table table-sm small">
+      <tbody>
+        <tr><td style="width:200px;" class="text-muted">Élève</td><td class="fw-semibold">{{ paiement.eleve.nom_complet }}</td></tr>
+        <tr><td class="text-muted">Matricule</td><td>{{ paiement.eleve.matricule }}</td></tr>
+        <tr><td class="text-muted">Année scolaire</td><td>{{ paiement.annee_scolaire.libelle }}</td></tr>
+        <tr><td class="text-muted">Objet</td><td>{{ paiement.libelle|default:'' }}</td></tr>
+        <tr><td class="text-muted">Mode de paiement</td><td>{{ paiement.get_mode_display }}{% if paiement.reference %} · Réf. {{ paiement.reference }}{% endif %}</td></tr>
+        <tr><td class="text-muted">Encaissé par</td><td>{{ paiement.encaisse_par.get_full_name|default:paiement.encaisse_par|default:'—' }}</td></tr>
+        <tr><td class="text-muted">Commentaire</td><td>{{ paiement.commentaire|default:'—' }}</td></tr>
+      </tbody>
+    </table>
+
+    <div class="border rounded-3 p-3 text-center bg-light">
+      <div class="small text-muted text-uppercase">Montant encaissé</div>
+      <div class="fs-2 fw-bold text-primary">{{ paiement.montant|montant }}</div>
+      <div class="small text-muted">Total payé par l'élève pour {{ paiement.annee_scolaire.libelle }} : <strong>{{ total_annee|montant }}</strong></div>
+    </div>
+
+    <div class="row mt-4 pt-3 border-top small text-center">
+      <div class="col-6">
+        <div class="mb-5">La caisse</div>
+        <div class="border-top">Signature &amp; cachet</div>
+      </div>
+      <div class="col-6">
+        <div class="mb-5">Le Directeur / La Directrice</div>
+        <div class="border-top">Signature &amp; cachet</div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

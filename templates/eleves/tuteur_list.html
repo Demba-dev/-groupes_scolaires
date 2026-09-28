@@ -1,0 +1,307 @@
+{% extends 'base.html' %}
+
+{% block page_title %}Parents / Tuteurs{% endblock %}
+{% block title %}Parents / Tuteurs{% endblock %}
+
+{% block extra_css %}
+<style>
+  /* ---- En-tête de page ---- */
+  .page-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+
+  .page-head .page-count {
+    font-size: 13px;
+    color: var(--gs-text-muted);
+    font-weight: 500;
+  }
+
+  .page-head .page-count strong {
+    color: var(--gs-text)
+  }
+
+  /* ---- Filtres ---- */
+  .filters-card {
+    background: #fff;
+    border: 1px solid var(--gs-border);
+    border-radius: var(--gs-radius);
+    padding: 16px 18px;
+    box-shadow: var(--gs-shadow-sm);
+    margin-bottom: 20px;
+  }
+
+  .filters-card .filter-search {
+    flex: 1 1 260px;
+    max-width: 400px
+  }
+
+  .filters-card .btn-icon {
+    width: 42px;
+    height: 42px;
+    padding: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .filters-card .reset-link {
+    font-size: 12.5px;
+    color: var(--gs-text-muted);
+    text-decoration: none;
+    font-weight: 500;
+  }
+
+  .filters-card .reset-link:hover {
+    color: var(--gs-primary-600)
+  }
+
+  /* ---- Tableau ---- */
+  .table-tuteurs thead th {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    background: #f8fafc;
+    color: var(--gs-text-muted);
+    font-size: 11.5px;
+    text-transform: uppercase;
+    letter-spacing: .06em;
+    padding: 12px 14px;
+    border-bottom: 1px solid var(--gs-border);
+    white-space: nowrap;
+  }
+
+  .table-tuteurs tbody td {
+    padding: 12px 14px;
+    font-size: 13.5px;
+    border-bottom: 1px solid #f1f5f9;
+    vertical-align: middle;
+  }
+
+  .table-tuteurs tbody tr:hover {
+    background: #f8fafc
+  }
+
+  .table-tuteurs .nom-tuteur {
+    font-weight: 600;
+    color: var(--gs-text);
+  }
+
+  .table-tuteurs .tel-cell {
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+
+  .table-tuteurs .truncate {
+    max-width: 220px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  /* ---- Badge compteur élèves ---- */
+  .eleve-count-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: linear-gradient(135deg, #e0e7ff, #c7d2fe);
+    color: #3730a3;
+    font-weight: 700;
+    font-size: 12px;
+    padding: 4px 12px;
+    border-radius: 999px;
+    text-decoration: none;
+    border: 1px solid #c7d2fe;
+    transition: all .15s ease;
+  }
+
+  .eleve-count-badge:hover {
+    background: linear-gradient(135deg, #c7d2fe, #a5b4fc);
+    color: #1e1b4b;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 10px rgba(55, 48, 163, .2);
+  }
+
+  .eleve-count-badge i {
+    font-size: 12px
+  }
+
+  .eleve-count-empty {
+    color: #cbd5e1;
+    font-size: 16px
+  }
+
+  /* ---- Actions ---- */
+  .actions-cell {
+    display: inline-flex;
+    gap: 4px;
+    justify-content: flex-end
+  }
+
+  .actions-cell .btn {
+    width: 34px;
+    height: 34px;
+    padding: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+  }
+
+  .actions-cell .btn i {
+    font-size: 14px
+  }
+
+  /* ---- État vide ---- */
+  .empty-state {
+    padding: 64px 24px;
+    text-align: center;
+    color: var(--gs-text-muted);
+  }
+
+  .empty-state i {
+    font-size: 44px;
+    color: #cbd5e1;
+    display: block;
+    margin-bottom: 12px
+  }
+
+  .empty-state h6 {
+    color: var(--gs-text);
+    font-weight: 600;
+    margin-bottom: 4px
+  }
+
+  .empty-state p {
+    font-size: 13px;
+    margin: 0
+  }
+
+  /* ---- Responsive ---- */
+  @media (max-width:767.98px) {
+    .filters-card .filter-search {
+      flex: 1 1 100%;
+      max-width: none
+    }
+
+    .filters-card .btn-icon {
+      width: 100%
+    }
+
+    .table-tuteurs .truncate {
+      max-width: 140px
+    }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+
+{# ---------- En-tête ---------- #}
+<div class="page-head">
+  <div class="page-count">
+    {% if object_list %}
+    <strong>{{ object_list|length }}</strong> parent{{ object_list|length|pluralize }} / tuteur{{
+    object_list|length|pluralize }} affiché{{ object_list|length|pluralize }}
+    {% else %}
+    Aucun résultat
+    {% endif %}
+  </div>
+  <a href="{% url 'eleves:tuteur_create' %}" class="btn btn-primary">
+    <i class="bi bi-plus-lg me-1"></i>Nouveau parent / tuteur
+  </a>
+</div>
+
+{# ---------- Filtres ---------- #}
+<form class="filters-card" method="get">
+  <div class="d-flex flex-wrap align-items-center gap-2">
+    <div class="position-relative filter-search">
+      <i class="bi bi-search position-absolute"
+        style="left:12px;top:50%;transform:translateY(-50%);color:var(--gs-text-muted);font-size:13px;pointer-events:none"></i>
+      <input type="text" name="q" value="{{ request.GET.q }}" class="form-control ps-5" placeholder="Nom, téléphone…">
+    </div>
+
+    <button class="btn btn-primary btn-icon" title="Rechercher" aria-label="Rechercher">
+      <i class="bi bi-search"></i>
+    </button>
+
+    {% if request.GET.q %}
+    <a href="?" class="reset-link ms-1">
+      <i class="bi bi-x-circle me-1"></i>Réinitialiser
+    </a>
+    {% endif %}
+  </div>
+</form>
+
+{# ---------- Tableau ---------- #}
+<div class="card">
+  <div class="table-responsive">
+    <table class="table table-hover align-middle mb-0 table-tuteurs">
+      <thead>
+        <tr>
+          <th>Nom &amp; prénom</th>
+          <th style="width:150px">Téléphone</th>
+          <th>Adresse</th>
+          <th style="width:160px">Profession</th>
+          <th class="text-center" style="width:130px">Élève(s)</th>
+          <th class="text-end" style="width:130px">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for tuteur in object_list %}
+        <tr>
+          <td>
+            <span class="nom-tuteur">{{ tuteur.nom_complet }}</span>
+          </td>
+          <td class="tel-cell">{{ tuteur.telephone }}</td>
+          <td>
+            <span class="truncate d-inline-block" title="{{ tuteur.adresse|default:'—' }}">
+              {{ tuteur.adresse|default:'—' }}
+            </span>
+          </td>
+          <td>{{ tuteur.profession|default:'—' }}</td>
+          <td class="text-center">
+            {% with count=tuteur.eleves.count %}
+            {% if count %}
+            <a href="{% url 'eleves:liste' %}?q={{ tuteur.nom }}" class="eleve-count-badge"
+              title="Voir les {{ count }} élève{{ count|pluralize }} de ce tuteur">
+              <i class="bi bi-people-fill"></i>{{ count }}
+            </a>
+            {% else %}
+            <span class="eleve-count-empty" title="Aucun élève rattaché">—</span>
+            {% endif %}
+            {% endwith %}
+          </td>
+          <td class="text-end">
+            <div class="actions-cell">
+              <a href="{% url 'eleves:tuteur_update' tuteur.pk %}" class="btn btn-outline-primary" title="Modifier">
+                <i class="bi bi-pencil"></i>
+              </a>
+              <a href="{% url 'eleves:tuteur_delete' tuteur.pk %}" class="btn btn-outline-danger" title="Supprimer">
+                <i class="bi bi-trash3"></i>
+              </a>
+            </div>
+          </td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="6">
+            <div class="empty-state">
+              <i class="bi bi-person-vcard"></i>
+              <h6>Aucun parent / tuteur trouvé</h6>
+              <p>Aucun parent ou tuteur ne correspond à votre recherche.</p>
+            </div>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+{% include 'includes/pagination.html' %}
+{% endblock %}

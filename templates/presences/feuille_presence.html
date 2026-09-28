@@ -1,0 +1,91 @@
+{% extends 'base.html' %}
+
+{% block page_title %}Feuille d'appel{% endblock %}
+{% block title %}Feuille d'appel{% endblock %}
+
+{% block content %}
+<form class="d-flex flex-wrap align-items-end gap-2 mb-3" method="get">
+  <div>
+    <label class="form-label small mb-1">Classe</label>
+    <select name="classe" class="form-select">
+      <option value="">— Choisir une classe —</option>
+      {% for c in classes %}
+      <option value="{{ c.id }}" {% if request.GET.classe == c.id|stringformat:'s' %}selected{% endif %}>{{ c.nom }} ({{ c.anne_scolaire.libelle }})</option>
+      {% endfor %}
+    </select>
+  </div>
+  <div>
+    <label class="form-label small mb-1">Date</label>
+    <input type="date" name="date" value="{{ date|date:'Y-m-d' }}" class="form-control">
+  </div>
+  <button class="btn btn-primary"><i class="bi bi-search me-1"></i>Afficher la classe</button>
+</form>
+
+{% if classe %}
+<form method="post">
+  {% csrf_token %}
+  <input type="hidden" name="classe" value="{{ classe.pk }}">
+  <input type="hidden" name="date" value="{{ date|date:'Y-m-d' }}">
+  <div class="card shadow-sm">
+    <div class="card-header bg-white fw-semibold d-flex justify-content-between align-items-center">
+      <span><i class="bi bi-list-check text-primary me-2"></i>Appel — {{ classe.nom }} — {{ date|date:'d/m/Y' }}</span>
+      <span class="text-muted small">Effectif : {{ lignes|length }}</span>
+    </div>
+    <div class="table-responsive">
+      <table class="table table-hover align-middle mb-0" id="tableAppel">
+        <thead>
+          <tr>
+            <th>#</th><th>Matricule</th><th>Élève</th>
+            <th class="text-center" style="min-width:230px;">Statut</th>
+            <th class="text-center">Justifiée</th>
+            <th>Motif</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for ligne in lignes %}
+          {% with eleve=ligne.inscription.eleve p=ligne.presence %}
+          <tr>
+            <td>{{ forloop.counter }}</td>
+            <td>{{ eleve.matricule }}</td>
+            <td class="fw-semibold">{{ eleve.nom_complet }}</td>
+            <td>
+              <select name="statut_{{ eleve.id }}" class="form-select form-select-sm statut {{ p.statut|default:'' }}">
+                <option value="">—</option>
+                {% for value, label in statuts %}
+                <option value="{{ value }}" {% if p and p.statut == value %}selected{% endif %}>{{ label }}</option>
+                {% endfor %}
+              </select>
+            </td>
+            <td class="text-center">
+              <input type="checkbox" class="form-check-input" name="justifie_{{ eleve.id }}"
+                     {% if p and p.justifie %}checked{% endif %}>
+            </td>
+            <td>
+              <input type="text" class="form-control form-control-sm" name="motif_{{ eleve.id }}"
+                     value="{{ p.motif|default:'' }}" placeholder="Ex. : certificat médical">
+            </td>
+          </tr>
+          {% endwith %}
+          {% empty %}
+          <tr><td colspan="6" class="text-center text-muted py-4">Aucun élève inscrit dans cette classe pour l'année en cours.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% if lignes %}
+    <div class="card-footer bg-white d-flex justify-content-between align-items-center">
+      <div class="small text-muted">Sélectionne « — » pour retirer un pointage (préparation ou correction d'appel).</div>
+      <div class="d-flex gap-2">
+        <button type="submit" class="btn btn-ecole"><i class="bi bi-check-lg me-1"></i>Enregistrer l'appel</button>
+      </div>
+    </div>
+    {% endif %}
+  </div>
+</form>
+{% else %}
+<div class="alert alert-light border text-center py-5">
+  <i class="bi bi-clipboard-check fs-1 d-block text-muted mb-2"></i>
+  Choisis une classe et une date pour faire l'appel.
+</div>
+{% endif %}
+{% endblock %}

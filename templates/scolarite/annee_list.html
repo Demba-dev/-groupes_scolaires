@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+
+{% block page_title %}Années scolaires{% endblock %}
+{% block title %}Années scolaires{% endblock %}
+
+{% block content %}
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+  <form class="d-flex gap-2" method="get">
+    <input type="text" name="q" value="{{ request.GET.q }}" class="form-control" placeholder="Rechercher (ex. 2025-2026)…">
+    <button class="btn btn-outline-secondary"><i class="bi bi-search"></i></button>
+  </form>
+  <a href="{% url 'scolarite:annee_create' %}" class="btn btn-ecole"><i class="bi bi-plus-lg me-1"></i>Nouvelle année</a>
+</div>
+
+<div class="card shadow-sm">
+  <div class="table-responsive">
+    <table class="table table-hover align-middle mb-0">
+      <thead>
+        <tr><th>Année scolaire</th><th>Début</th><th>Fin</th><th class="text-center">En cours</th><th class="text-center">Clôturée</th><th class="text-end">Actions</th></tr>
+      </thead>
+      <tbody>
+        {% for annee in object_list %}
+        <tr>
+          <td class="fw-semibold">
+            {{ annee.libelle }}
+            {% if annee.en_cours %}<span class="badge bg-success ms-2">EN COURS</span>{% endif %}
+          </td>
+          <td>{{ annee.date_debut|date:'d/m/Y' }}</td>
+          <td>{{ annee.date_fin|date:'d/m/Y' }}</td>
+          <td class="text-center">{% if annee.en_cours %}<i class="bi bi-check-circle-fill text-success"></i>{% else %}<i class="bi bi-dash text-muted"></i>{% endif %}</td>
+          <td class="text-center">{% if annee.cloturee %}<span class="badge bg-secondary">Clôturée</span>{% endif %}</td>
+          <td class="text-end text-nowrap">
+            <a href="{% url 'scolarite:annee_update' annee.pk %}" class="btn btn-sm btn-outline-primary"><i class="bi bi-pencil"></i></a>
+            <a href="{% url 'scolarite:annee_delete' annee.pk %}" class="btn btn-sm btn-outline-danger"><i class="bi bi-trash3"></i></a>
+          </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="6" class="text-center text-muted py-5">Aucune année scolaire. Créez la première.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% include 'includes/pagination.html' %}
+{% endblock %}

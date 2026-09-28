@@ -1,0 +1,23 @@
+{% load ui %}
+{% if not field.is_hidden %}
+<div class="mb-3">
+  {% if field.field.widget.input_type == 'checkbox' %}
+    <div class="form-check form-switch">
+      {{ field|add_css:'form-check-input' }}
+      <label class="form-check-label" for="{{ field.id_for_label }}">{{ field.label }}{% if field.field.required %} <span class="text-danger">*</span>{% endif %}</label>
+    </div>
+    {% if field.help_text %}<div class="form-text px-4">{{ field.help_text }}</div>{% endif %}
+  {% else %}
+    <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}{% if field.field.required %} <span class="text-danger">*</span>{% endif %}</label>
+    {% if field.field.widget.input_type is None or field.field.widget.input_type == 'select' %}
+      {{ field|add_css:'form-select' }}
+    {% else %}
+      {{ field|add_css:'form-control' }}
+    {% endif %}
+    {% if field.help_text %}<div class="form-text">{{ field.help_text }}</div>{% endif %}
+  {% endif %}
+  {% if field.errors %}
+    {% for erreur in field.errors %}<div class="invalid-feedback d-block">{{ erreur }}</div>{% endfor %}
+  {% endif %}
+</div>
+{% endif %}
